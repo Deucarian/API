@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892a08978f5d4d65807f47018ef313ee, type: 3}
+  m_Name: ExampleApiClientConfig
+  m_EditorClassIdentifier: 
+  baseUrl: https://jsonplaceholder.typicode.com
+  defaultHeaders: []
+  timeoutSeconds: 30
+  authenticationMode: 0
+  authProvider: {fileID: 0}
+  jsonSerializerSettings:
+    nullValueHandling: 1
+    defaultValueHandling: 0
+    missingMemberHandling: 0
+    referenceLoopHandling: 1
+    formatting: 0
+  defaultResponseFormat: 0
+  certificateHandlingMode: 0
+  loggingMode: 2
+  logRawJson: 1

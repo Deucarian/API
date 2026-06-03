@@ -1,0 +1,31 @@
+{
+  "name": "com.jorishoef.api-helper",
+  "version": "1.0.0",
+  "displayName": "API Helper",
+  "description": "A reusable Unity API client package with JSON, text, byte, texture, ScriptableObject endpoint, and code-defined endpoint workflows.",
+  "unity": "2021.3",
+  "author": {
+    "name": "Joris Hoef"
+  },
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.2",
+    "com.unity.modules.unitywebrequest": "1.0.0",
+    "com.unity.modules.unitywebrequesttexture": "1.0.0",
+    "com.unity.modules.unitywebrequestwww": "1.0.0"
+  },
+  "keywords": [
+    "api",
+    "http",
+    "unitywebrequest",
+    "json",
+    "rest",
+    "networking"
+  ],
+  "samples": [
+    {
+      "displayName": "API Helper Example Scene",
+      "description": "Example scene showing config, authentication, GET, POST, and ApiResult handling.",
+      "path": "Samples~/ExampleScene"
+    }
+  ]
+}
