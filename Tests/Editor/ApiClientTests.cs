@@ -51,13 +51,15 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task ApiClient_UsesRawStringEndpointConstants()
+        public void ApiClient_UsesRawStringEndpointConstants()
         {
             RecordingRequestBuilder builder = new RecordingRequestBuilder();
             ApiClient client = CreateTestClient(builder, new SuccessRequestSender("[]"));
 
             ApiResult<List<string>> result =
-                    await client.GetAsync<List<string>>(TestRoutes.Projects, CancellationToken.None);
+                    client.GetAsync<List<string>>(TestRoutes.Projects, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult();
 
             Assert.IsTrue(result.IsSuccess);
             Assert.AreEqual(TestRoutes.Projects, builder.LastRequest.Endpoint);
@@ -65,7 +67,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task ApiClient_UsesApiEndpointMethodAndAuth()
+        public void ApiClient_UsesApiEndpointMethodAndAuth()
         {
             RecordingRequestBuilder builder = new RecordingRequestBuilder();
             ApiClient client = CreateTestClient(builder, new SuccessRequestSender("{}"));
@@ -82,9 +84,11 @@ namespace JorisHoef.APIHelper.Tests
                                                            { "include", "users" }
                                                    });
 
-            await client.SendAsync<Dictionary<string, string>>(endpoint,
-                                                               new { name = "Project" },
-                                                               CancellationToken.None);
+            client.SendAsync<Dictionary<string, string>>(endpoint,
+                                                         new { name = "Project" },
+                                                         CancellationToken.None)
+                  .GetAwaiter()
+                  .GetResult();
 
             Assert.AreEqual("projects", builder.LastRequest.Endpoint);
             Assert.AreEqual(HttpMethod.POST, builder.LastRequest.Method);
@@ -142,7 +146,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task RequestBuilder_InjectsBearerAuthHeader()
+        public void RequestBuilder_InjectsBearerAuthHeader()
         {
             ApiClientConfig config = ScriptableObject.CreateInstance<ApiClientConfig>();
             config.BaseUrl = "https://example.com";
@@ -159,7 +163,9 @@ namespace JorisHoef.APIHelper.Tests
                                                 ApiAuthenticationRequirement.Required);
 
             using (UnityWebRequest webRequest =
-                   await builder.BuildAsync(request, ApiResponseFormat.Json, CancellationToken.None))
+                   builder.BuildAsync(request, ApiResponseFormat.Json, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
             {
                 Assert.AreEqual("https://example.com/projects", webRequest.url);
                 Assert.AreEqual("Bearer test-token", webRequest.GetRequestHeader("Authorization"));
@@ -168,7 +174,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task RequestBuilder_AllowsOptionalAuthWithoutProvider()
+        public void RequestBuilder_AllowsOptionalAuthWithoutProvider()
         {
             ApiClientConfig config = ScriptableObject.CreateInstance<ApiClientConfig>();
             config.BaseUrl = "https://example.com";
@@ -184,7 +190,9 @@ namespace JorisHoef.APIHelper.Tests
                                                 ApiAuthenticationRequirement.Optional);
 
             using (UnityWebRequest webRequest =
-                   await builder.BuildAsync(request, ApiResponseFormat.Json, CancellationToken.None))
+                   builder.BuildAsync(request, ApiResponseFormat.Json, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
             {
                 Assert.IsNull(webRequest.GetRequestHeader("Authorization"));
             }
@@ -218,7 +226,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task RequestBuilder_AppliesTimeoutOverride()
+        public void RequestBuilder_AppliesTimeoutOverride()
         {
             ApiClientConfig config = ScriptableObject.CreateInstance<ApiClientConfig>();
             config.BaseUrl = "https://example.com";
@@ -236,14 +244,16 @@ namespace JorisHoef.APIHelper.Tests
             };
 
             using (UnityWebRequest webRequest =
-                   await builder.BuildAsync(request, ApiResponseFormat.Json, CancellationToken.None))
+                   builder.BuildAsync(request, ApiResponseFormat.Json, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
             {
                 Assert.AreEqual(3, webRequest.timeout);
             }
         }
 
         [Test]
-        public async Task ApiClient_ReturnsCancellationError()
+        public void ApiClient_ReturnsCancellationError()
         {
             ApiClient client = CreateTestClient(new RecordingRequestBuilder(),
                                                 new CancellingRequestSender());
@@ -252,7 +262,9 @@ namespace JorisHoef.APIHelper.Tests
             {
                 cts.Cancel();
 
-                ApiResult<string> result = await client.GetAsync<string>("projects", cts.Token);
+                ApiResult<string> result = client.GetAsync<string>("projects", cts.Token)
+                                                 .GetAwaiter()
+                                                 .GetResult();
 
                 Assert.IsFalse(result.IsSuccess);
                 Assert.IsTrue(result.Error.IsCancellation);
@@ -298,7 +310,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task ApiClientExtension_SendsEndpointDefinition()
+        public void ApiClientExtension_SendsEndpointDefinition()
         {
             RecordingApiClient client = new RecordingApiClient();
             ApiEndpointDefinition endpoint = ScriptableObject.CreateInstance<ApiEndpointDefinition>();
@@ -306,7 +318,9 @@ namespace JorisHoef.APIHelper.Tests
             endpoint.Method = HttpMethod.POST;
             endpoint.Authentication = ApiAuthenticationRequirement.Required;
 
-            await client.SendAsync<string>(endpoint, new { name = "Project" }, CancellationToken.None);
+            client.SendAsync<string>(endpoint, new { name = "Project" }, CancellationToken.None)
+                  .GetAwaiter()
+                  .GetResult();
 
             Assert.AreEqual("projects", client.LastEndpoint.Path);
             Assert.AreEqual(HttpMethod.POST, client.LastEndpoint.Method);
@@ -315,12 +329,14 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task ApiClient_ReturnsStringResponsesAsText()
+        public void ApiClient_ReturnsStringResponsesAsText()
         {
             RecordingRequestBuilder builder = new RecordingRequestBuilder();
             ApiClient client = CreateTestClient(builder, new SuccessRequestSender("healthy"));
 
-            ApiResult<string> result = await client.GetAsync<string>("health", CancellationToken.None);
+            ApiResult<string> result = client.GetAsync<string>("health", CancellationToken.None)
+                                             .GetAwaiter()
+                                             .GetResult();
 
             Assert.IsTrue(result.IsSuccess);
             Assert.AreEqual("healthy", result.Data);
@@ -328,13 +344,15 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task ApiClient_ReturnsByteArrayResponsesAsBytes()
+        public void ApiClient_ReturnsByteArrayResponsesAsBytes()
         {
             byte[] bytes = new byte[] { 1, 2, 3 };
             RecordingRequestBuilder builder = new RecordingRequestBuilder();
             ApiClient client = CreateTestClient(builder, new SuccessRequestSender(null, bytes));
 
-            ApiResult<byte[]> result = await client.GetAsync<byte[]>("files/report", CancellationToken.None);
+            ApiResult<byte[]> result = client.GetAsync<byte[]>("files/report", CancellationToken.None)
+                                             .GetAwaiter()
+                                             .GetResult();
 
             Assert.IsTrue(result.IsSuccess);
             CollectionAssert.AreEqual(bytes, result.Data);
@@ -342,7 +360,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task ApiClient_ReturnsTextureResponsesAsTextures()
+        public void ApiClient_ReturnsTextureResponsesAsTextures()
         {
             Texture2D texture = new Texture2D(1, 1);
             RecordingRequestBuilder builder = new RecordingRequestBuilder();
@@ -351,7 +369,9 @@ namespace JorisHoef.APIHelper.Tests
                                                                          new byte[] { 1 },
                                                                          texture));
 
-            ApiResult<Texture2D> result = await client.GetAsync<Texture2D>("images/avatar", CancellationToken.None);
+            ApiResult<Texture2D> result = client.GetAsync<Texture2D>("images/avatar", CancellationToken.None)
+                                                .GetAwaiter()
+                                                .GetResult();
 
             Assert.IsTrue(result.IsSuccess);
             Assert.AreSame(texture, result.Data);
@@ -360,14 +380,16 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task ApiClient_SpecialResponseTypesIgnoreGlobalDefaultResponseFormat()
+        public void ApiClient_SpecialResponseTypesIgnoreGlobalDefaultResponseFormat()
         {
             RecordingRequestBuilder textBuilder = new RecordingRequestBuilder();
             ApiClient textClient = CreateTestClient(textBuilder,
                                                     new SuccessRequestSender("healthy"),
                                                     ApiResponseFormat.Bytes);
 
-            await textClient.GetAsync<string>("health", CancellationToken.None);
+            textClient.GetAsync<string>("health", CancellationToken.None)
+                      .GetAwaiter()
+                      .GetResult();
 
             Assert.AreEqual(ApiResponseFormat.Text, textBuilder.LastResponseFormat);
 
@@ -377,7 +399,9 @@ namespace JorisHoef.APIHelper.Tests
                                                     new SuccessRequestSender(null, bytes),
                                                     ApiResponseFormat.Text);
 
-            await byteClient.GetAsync<byte[]>("files/report", CancellationToken.None);
+            byteClient.GetAsync<byte[]>("files/report", CancellationToken.None)
+                      .GetAwaiter()
+                      .GetResult();
 
             Assert.AreEqual(ApiResponseFormat.Bytes, byteBuilder.LastResponseFormat);
         }
@@ -408,35 +432,39 @@ namespace JorisHoef.APIHelper.Tests
         [TestCase(ApiResponseFormat.Text, "text/plain,*/*")]
         [TestCase(ApiResponseFormat.Bytes, "*/*")]
         [TestCase(ApiResponseFormat.Texture, "image/png,image/jpeg,image/webp,*/*")]
-        public async Task RequestBuilder_AppliesAcceptHeaderDefaults(ApiResponseFormat responseFormat,
-                                                                     string expectedAccept)
+        public void RequestBuilder_AppliesAcceptHeaderDefaults(ApiResponseFormat responseFormat,
+                                                               string expectedAccept)
         {
             UnityWebRequestBuilder builder = CreateRequestBuilder();
             ApiRequest request = new ApiRequest("projects", HttpMethod.GET);
 
             using (UnityWebRequest webRequest =
-                   await builder.BuildAsync(request, responseFormat, CancellationToken.None))
+                   builder.BuildAsync(request, responseFormat, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
             {
                 Assert.AreEqual(expectedAccept, webRequest.GetRequestHeader("Accept"));
             }
         }
 
         [Test]
-        public async Task RequestBuilder_PreservesExplicitAcceptHeader()
+        public void RequestBuilder_PreservesExplicitAcceptHeader()
         {
             UnityWebRequestBuilder builder = CreateRequestBuilder();
             ApiRequest request = new ApiRequest("projects", HttpMethod.GET);
             request.Headers["Accept"] = "application/pdf";
 
             using (UnityWebRequest webRequest =
-                   await builder.BuildAsync(request, ApiResponseFormat.Bytes, CancellationToken.None))
+                   builder.BuildAsync(request, ApiResponseFormat.Bytes, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
             {
                 Assert.AreEqual("application/pdf", webRequest.GetRequestHeader("Accept"));
             }
         }
 
         [Test]
-        public async Task RequestBuilder_PreservesExplicitContentTypeHeader()
+        public void RequestBuilder_PreservesExplicitContentTypeHeader()
         {
             UnityWebRequestBuilder builder = CreateRequestBuilder();
             ApiRequest request = new ApiRequest("projects", HttpMethod.POST)
@@ -447,14 +475,16 @@ namespace JorisHoef.APIHelper.Tests
             request.Headers["Content-Type"] = "text/csv";
 
             using (UnityWebRequest webRequest =
-                   await builder.BuildAsync(request, ApiResponseFormat.Text, CancellationToken.None))
+                   builder.BuildAsync(request, ApiResponseFormat.Text, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
             {
                 Assert.AreEqual("text/csv", webRequest.GetRequestHeader("Content-Type"));
             }
         }
 
         [Test]
-        public async Task RequestBuilder_CreatesRawTextRequestBody()
+        public void RequestBuilder_CreatesRawTextRequestBody()
         {
             UnityWebRequestBuilder builder = CreateRequestBuilder();
             ApiRequest request = new ApiRequest("echo", HttpMethod.POST)
@@ -464,7 +494,9 @@ namespace JorisHoef.APIHelper.Tests
             };
 
             using (UnityWebRequest webRequest =
-                   await builder.BuildAsync(request, ApiResponseFormat.Text, CancellationToken.None))
+                   builder.BuildAsync(request, ApiResponseFormat.Text, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
             {
                 Assert.AreEqual("text/plain", webRequest.GetRequestHeader("Content-Type"));
                 CollectionAssert.AreEqual(Encoding.UTF8.GetBytes("hello"), webRequest.uploadHandler.data);
@@ -472,7 +504,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task RequestBuilder_CreatesRawByteRequestBody()
+        public void RequestBuilder_CreatesRawByteRequestBody()
         {
             UnityWebRequestBuilder builder = CreateRequestBuilder();
             byte[] body = new byte[] { 10, 20, 30 };
@@ -483,7 +515,9 @@ namespace JorisHoef.APIHelper.Tests
             };
 
             using (UnityWebRequest webRequest =
-                   await builder.BuildAsync(request, ApiResponseFormat.Bytes, CancellationToken.None))
+                   builder.BuildAsync(request, ApiResponseFormat.Bytes, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
             {
                 Assert.AreEqual("application/octet-stream", webRequest.GetRequestHeader("Content-Type"));
                 CollectionAssert.AreEqual(body, webRequest.uploadHandler.data);
@@ -491,7 +525,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task RequestBuilder_CreatesMultipartRequestBody()
+        public void RequestBuilder_CreatesMultipartRequestBody()
         {
             UnityWebRequestBuilder builder = CreateRequestBuilder();
             ApiRequest request = new ApiRequest("upload", HttpMethod.POST)
@@ -504,7 +538,9 @@ namespace JorisHoef.APIHelper.Tests
             };
 
             using (UnityWebRequest webRequest =
-                   await builder.BuildAsync(request, ApiResponseFormat.Json, CancellationToken.None))
+                   builder.BuildAsync(request, ApiResponseFormat.Json, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
             {
                 Assert.AreEqual("POST", webRequest.method);
                 Assert.NotNull(webRequest.uploadHandler);
@@ -513,7 +549,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task LegacyDownloadBytesWrapper_DelegatesToConfiguredApiClient()
+        public void LegacyDownloadBytesWrapper_DelegatesToConfiguredApiClient()
         {
             IApiClient original = ApiServices.Client;
             RecordingApiClient recordingClient = new RecordingApiClient();
@@ -523,7 +559,9 @@ namespace JorisHoef.APIHelper.Tests
                 ApiServices.Configure(recordingClient);
 
 #pragma warning disable CS0618
-                await ApiServices.DownloadBytesAsync("files/report", "token", null, CancellationToken.None);
+                ApiServices.DownloadBytesAsync("files/report", "token", null, CancellationToken.None)
+                           .GetAwaiter()
+                           .GetResult();
 #pragma warning restore CS0618
 
                 Assert.AreEqual("files/report", recordingClient.LastRequest.Endpoint);
@@ -569,7 +607,7 @@ namespace JorisHoef.APIHelper.Tests
         }
 
         [Test]
-        public async Task ApiServices_FacadeDelegatesEndpointCallsToConfiguredClient()
+        public void ApiServices_FacadeDelegatesEndpointCallsToConfiguredClient()
         {
             IApiClient original = ApiServices.Client;
             RecordingApiClient recordingClient = new RecordingApiClient();
@@ -579,7 +617,9 @@ namespace JorisHoef.APIHelper.Tests
             {
                 ApiServices.Configure(recordingClient);
 
-                await ApiServices.SendAsync<string>(endpoint, CancellationToken.None);
+                ApiServices.SendAsync<string>(endpoint, CancellationToken.None)
+                           .GetAwaiter()
+                           .GetResult();
 
                 Assert.AreSame(endpoint, recordingClient.LastEndpoint);
             }
