@@ -257,7 +257,7 @@ Requests and endpoints can choose:
 
 APIHelper does not depend on the other JorisHoef runtime packages.
 
-Other packages or project code can integrate by implementing `IApiAuthProvider`. Session Helper provides an optional `SessionAuthProvider` adapter in its own `SessionHelper.APIHelper` assembly when the `SESSION_HELPER_APIHELPER` scripting define symbol is enabled. That adapter lives in Session Helper, not in APIHelper.
+Other packages or project code can integrate by implementing `IApiAuthProvider`. Session Helper token support lives in the separate `com.jorishoef.session-helper.api-helper-bridge` package, not in APIHelper. No scripting define symbol is required for that bridge.
 
 ## String Endpoint Workflow
 
