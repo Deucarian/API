@@ -1,8 +1,8 @@
-# APIHelper
+# JorisHoef API Helper
 
 ## Overview
 
-APIHelper is a reusable Unity/C# API client package built around `IApiClient`.
+JorisHoef API Helper is a reusable Unity/C# API client package built around `IApiClient`.
 It wraps UnityWebRequest behind a small, testable client surface and supports
 developer-friendly code endpoints, designer-friendly ScriptableObject endpoints,
 structured error handling, authentication providers, cancellation, timeouts, and

@@ -1,11 +1,11 @@
 {
   "name": "com.jorishoef.api-helper",
   "version": "1.0.0",
-  "displayName": "API Helper",
+  "displayName": "JorisHoef API Helper",
   "description": "A reusable Unity API client package with JSON, text, byte, texture, ScriptableObject endpoint, and code-defined endpoint workflows.",
   "unity": "2021.3",
   "author": {
-    "name": "Joris Hoef"
+    "name": "JorisHoef"
   },
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.2",
