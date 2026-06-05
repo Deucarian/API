@@ -1,5 +1,7 @@
 # APIHelper
 
+## Overview
+
 APIHelper is a reusable Unity/C# API client package built around `IApiClient`.
 It wraps UnityWebRequest behind a small, testable client surface and supports
 developer-friendly code endpoints, designer-friendly ScriptableObject endpoints,
@@ -11,7 +13,9 @@ The package is intentionally practical: use raw string routes for simple calls,
 for non-developer configuration, and `ApiRequest` only for advanced one-off
 requests.
 
-## Features
+Package ID: `com.jorishoef.api-helper`
+
+## Core Concepts
 
 - `IApiClient` as the main injectable dependency.
 - Safe TLS behavior by default. Certificate bypass is only available as an
@@ -50,18 +54,11 @@ Beta branch:
 "com.jorishoef.api-helper": "https://github.com/JorisHoef/API-Helper.git#develop"
 ```
 
-Tagged release:
-
-```json
-"com.jorishoef.api-helper": "https://github.com/JorisHoef/API-Helper.git#v1.0.0"
-```
-
 Release channels:
 
 - `main` is the stable channel.
 - `develop` is the beta channel.
-- Tags such as `v1.0.0` are stable release installs.
-- Beta tags may use prerelease versions such as `v1.1.0-beta.1`.
+- This local repo currently has no stable release tag. When release tags are published, use the tag name as the Git ref for immutable installs.
 
 The package expects Unity 2021.3 or newer and declares dependencies on
 `com.unity.nuget.newtonsoft-json` plus Unity's built-in UnityWebRequest modules.
@@ -89,7 +86,23 @@ readability and package portability. The runtime assembly has no editor-only
 references, the editor and test assemblies are Editor-only, and samples are kept
 in their own `APIHelper.Samples` assembly.
 
-## Included Samples
+## Public API
+
+The main runtime APIs are:
+
+- `IApiClient`: injectable client used by application services.
+- `ApiClientFactory`: creates the default client pipeline from `ApiClientConfig`.
+- `ApiClientConfig`: ScriptableObject config for base URL, default headers, timeout, auth, JSON settings, certificate handling, response format, and logging.
+- `IApiAuthProvider` and `ApiAuthProviderAsset`: code and ScriptableObject token providers.
+- `ApiEndpoint`: code-defined endpoint with method, auth, timeout, headers, query parameters, path parameters, and response format.
+- `ApiEndpointDefinition`: ScriptableObject endpoint asset that converts to `ApiEndpoint`.
+- `ApiRequest`: advanced one-off request model.
+- `ApiResult<T>` and `ApiError`: success/failure result model.
+- `ApiServices`: legacy/convenience static facade over a configured `IApiClient`.
+
+Most new code should depend on `IApiClient`, create it with `ApiClientFactory.Create`, and handle `ApiResult<T>` instead of catching transport exceptions for normal API failures.
+
+## Samples
 
 APIHelper includes lightweight learning assets under:
 
@@ -205,14 +218,15 @@ and images.
 ## Authentication
 
 Authentication is provided through `IApiAuthProvider`. The provider returns the
-token only; APIHelper creates the `Authorization: Bearer ...` header.
+token only; APIHelper creates the `Authorization: Bearer ...` header. The
+following example is project code; APIHelper does not include `ISessionService`.
 
 ```csharp
-public sealed class SessionAuthProvider : IApiAuthProvider
+public sealed class ProjectSessionAuthProvider : IApiAuthProvider
 {
     private readonly ISessionService sessionService;
 
-    public SessionAuthProvider(ISessionService sessionService)
+    public ProjectSessionAuthProvider(ISessionService sessionService)
     {
         this.sessionService = sessionService;
     }
@@ -226,7 +240,7 @@ public sealed class SessionAuthProvider : IApiAuthProvider
 
 IApiClient apiClient = ApiClientFactory.Create(
     apiClientConfig,
-    new SessionAuthProvider(sessionService));
+    new ProjectSessionAuthProvider(sessionService));
 ```
 
 For designer-assigned auth providers, derive from `ApiAuthProviderAsset` and
@@ -238,6 +252,12 @@ Requests and endpoints can choose:
 - `Required`: token must be available.
 - `Optional`: token is used if available.
 - `Disabled`: never attach auth.
+
+## Integrations
+
+APIHelper does not depend on the other JorisHoef runtime packages.
+
+Other packages or project code can integrate by implementing `IApiAuthProvider`. Session Helper provides an optional `SessionAuthProvider` adapter in its own `SessionHelper.APIHelper` assembly when the `SESSION_HELPER_APIHELPER` scripting define symbol is enabled. That adapter lives in Session Helper, not in APIHelper.
 
 ## String Endpoint Workflow
 
@@ -567,6 +587,19 @@ That keeps the package lightweight and avoids a framework-style plugin system.
 Add such an abstraction only if project code repeatedly needs custom response
 decoders that cannot be handled cleanly with `string` or `byte[]`.
 
+## Versioning
+
+Current package version: `1.0.0`.
+
+Branch strategy:
+
+- `main`: stable package branch.
+- `develop`: development package branch.
+- Stable release tags should use names such as `v1.0.0` when published.
+- Beta tags may use prerelease versions such as `v1.1.0-beta.1`.
+
+Unity may pin Git package commits in `Packages/packages-lock.json`; to update, open Package Manager and update the package, remove the lock entry, or change the Git ref in `manifest.json`.
+
 ## CI And Releases
 
 GitHub Actions validates package structure on pull requests and pushes to
@@ -580,14 +613,6 @@ GameCI/Unity:
 - `UNITY_LICENSE`
 - `UNITY_EMAIL`
 - `UNITY_PASSWORD`
-
-Release strategy:
-
-- Develop and test changes on `develop`.
-- Merge stable changes to `main`.
-- Create stable release tags such as `v1.0.0`.
-- Use prerelease tags such as `v1.1.0-beta.1` for beta package installs.
-- Tagged pushes create a package zip artifact for GitHub releases.
 
 Unity Asset Store publishing is not part of this package workflow. It can be
 added later as a separate release channel.
@@ -683,6 +708,15 @@ configured `IApiClient`. Prefer:
 ApiResult<byte[]> bytes = await apiClient.GetAsync<byte[]>(FileEndpoints.Download, cancellationToken);
 ApiResult<Texture2D> texture = await apiClient.GetAsync<Texture2D>(ImageEndpoints.Avatar, cancellationToken);
 ```
+
+## Limitations
+
+- APIHelper uses UnityWebRequest as its built-in transport.
+- Built-in response handling covers JSON DTOs, `string`, `byte[]`, and `Texture2D`.
+- Audio, video, PDF, CSV, archive, and other custom formats should be downloaded as `byte[]` or `string` and decoded by application code.
+- There is no built-in response-handler registry.
+- `ApiServices` remains for legacy and simple facade use, but new services should depend on `IApiClient`.
+- Certificate bypass is intended only for explicit development scenarios; keep production configs on `DefaultValidation`.
 
 ## Complete Example
 

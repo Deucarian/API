@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Improved README structure for overview, core concepts, public API, samples, integrations, versioning, and limitations.
+
 ## 1.0.0 - 2026-06-03
 
 - Converted APIHelper into a standalone Unity Package Manager Git package.
