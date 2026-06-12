@@ -1,4 +1,4 @@
-namespace JorisHoef.APIHelper.Models
+namespace Deucarian.API.Models
 {
     /// <summary>
     /// Legacy API result shape. Use ApiResult&lt;T&gt; for new code.

@@ -1,6 +1,6 @@
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Certificates
+namespace Deucarian.API.Certificates
 {
     internal sealed class BypassCertificateHandler : CertificateHandler
     {

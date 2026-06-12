@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace JorisHoef.APIHelper.Authentication
+namespace Deucarian.API.Authentication
 {
     /// <summary>
     /// Simple code-defined bearer token provider, useful for tests or small integrations.

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal sealed class UnityWebRequestSender : IRequestSender
     {

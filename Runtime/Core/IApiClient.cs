@@ -1,8 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     /// <summary>
     /// Main API client abstraction. Depend on this interface in application services.

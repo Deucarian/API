@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace JorisHoef.APIHelper.Models
+namespace Deucarian.API.Models
 {
     /// <summary>
     /// Controls whether a request should use the configured authentication provider.
@@ -34,7 +34,7 @@ namespace JorisHoef.APIHelper.Models
         /// <summary>
         /// Legacy raw body mode. Use <see cref="RawText"/> or <see cref="RawBytes"/> for new code.
         /// </summary>
-        [System.Obsolete("Use RawText or RawBytes so APIHelper can choose safe Content-Type defaults.")]
+        [System.Obsolete("Use RawText or RawBytes so API can choose safe Content-Type defaults.")]
         Raw = 2,
 
         /// <summary>Send the body as UTF-8 text.</summary>

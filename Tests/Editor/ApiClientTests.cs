@@ -4,17 +4,17 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Authentication;
-using JorisHoef.APIHelper.Certificates;
-using JorisHoef.APIHelper.Configuration;
-using JorisHoef.APIHelper.Core;
-using JorisHoef.APIHelper.Models;
-using JorisHoef.APIHelper.Services;
+using Deucarian.API.Authentication;
+using Deucarian.API.Certificates;
+using Deucarian.API.Configuration;
+using Deucarian.API.Core;
+using Deucarian.API.Models;
+using Deucarian.API.Services;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Tests
+namespace Deucarian.API.Tests
 {
     public sealed class ApiClientTests
     {
@@ -47,7 +47,7 @@ namespace JorisHoef.APIHelper.Tests
         public void ApiRequest_DoesNotStoreExpectedResponseType()
         {
             Assert.IsNull(typeof(ApiRequest).GetProperty("ExpectedResponseType"));
-            Assert.IsNull(typeof(ApiRequest).Assembly.GetType("JorisHoef.APIHelper.Models.ApiRequest`1"));
+            Assert.IsNull(typeof(ApiRequest).Assembly.GetType("Deucarian.API.Models.ApiRequest`1"));
         }
 
         [Test]
@@ -577,15 +577,15 @@ namespace JorisHoef.APIHelper.Tests
         [Test]
         public void AssemblyDefinitions_ArePackageSafe()
         {
-            string apiHelperRoot = FindPackageRoot();
+            string apiRoot = FindPackageRoot();
 
-            string runtime = ReadAsmdef(Path.Combine(apiHelperRoot, "Runtime", "APIHelper.asmdef"));
-            string editor = ReadAsmdef(Path.Combine(apiHelperRoot, "Editor", "APIHelper.Editor.asmdef"));
-            string tests = ReadAsmdef(Path.Combine(apiHelperRoot, "Tests", "Editor", "APIHelper.Tests.asmdef"));
-            string samples = ReadAsmdef(Path.Combine(apiHelperRoot,
+            string runtime = ReadAsmdef(Path.Combine(apiRoot, "Runtime", "Deucarian.API.asmdef"));
+            string editor = ReadAsmdef(Path.Combine(apiRoot, "Editor", "Deucarian.API.Editor.asmdef"));
+            string tests = ReadAsmdef(Path.Combine(apiRoot, "Tests", "Editor", "Deucarian.API.Tests.asmdef"));
+            string samples = ReadAsmdef(Path.Combine(apiRoot,
                                                      "Samples~",
                                                      "ExampleScene",
-                                                     "APIHelper.Samples.asmdef"));
+                                                     "Deucarian.API.Samples.asmdef"));
 
             Assert.That(runtime, Does.Contain("\"includePlatforms\": []"));
             Assert.That(runtime, Does.Not.Contain("\"CertificateAssembly\""));
@@ -593,17 +593,17 @@ namespace JorisHoef.APIHelper.Tests
             Assert.That(runtime, Does.Not.Contain("\"Editor\""));
             Assert.That(editor, Does.Contain("\"includePlatforms\": ["));
             Assert.That(editor, Does.Contain("\"Editor\""));
-            Assert.That(editor, Does.Contain("\"APIHelper\""));
+            Assert.That(editor, Does.Contain("\"Deucarian.API\""));
             Assert.That(editor, Does.Not.Contain("GUID:"));
             Assert.That(tests, Does.Contain("\"includePlatforms\": ["));
             Assert.That(tests, Does.Contain("\"Editor\""));
-            Assert.That(tests, Does.Contain("\"APIHelper\""));
+            Assert.That(tests, Does.Contain("\"Deucarian.API\""));
             Assert.That(tests, Does.Contain("\"TestAssemblies\""));
             Assert.That(tests, Does.Not.Contain("GUID:"));
             Assert.That(samples, Does.Contain("\"references\": ["));
-            Assert.That(samples, Does.Contain("\"APIHelper\""));
+            Assert.That(samples, Does.Contain("\"Deucarian.API\""));
             Assert.That(samples, Does.Not.Contain("GUID:"));
-            Assert.That(samples, Does.Not.Contain("\"APIHelper.Editor\""));
+            Assert.That(samples, Does.Not.Contain("\"Deucarian.API.Editor\""));
         }
 
         [Test]
@@ -663,28 +663,28 @@ namespace JorisHoef.APIHelper.Tests
             string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             string[] candidates =
             {
-                    Path.Combine(projectRoot, "Packages", "com.jorishoef.api-helper"),
-                    Path.Combine(projectRoot, "Packages", "API-Helper"),
-                    Path.Combine(Application.dataPath, "Plugins", "JorisHoef", "APIHelper"),
+                    Path.Combine(projectRoot, "Packages", "com.deucarian.api"),
+                    Path.Combine(projectRoot, "Packages", "API"),
+                    Path.Combine(Application.dataPath, "Plugins", "Deucarian", "API"),
                     projectRoot
             };
 
             foreach (string candidate in candidates)
             {
                 if (File.Exists(Path.Combine(candidate, "package.json"))
-                    && File.Exists(Path.Combine(candidate, "Runtime", "APIHelper.asmdef")))
+                    && File.Exists(Path.Combine(candidate, "Runtime", "Deucarian.API.asmdef")))
                 {
                     return candidate;
                 }
 
-                if (File.Exists(Path.Combine(candidate, "APIHelper.asmdef"))
+                if (File.Exists(Path.Combine(candidate, "Deucarian.API.asmdef"))
                     && Directory.Exists(Path.Combine(candidate, "Core")))
                 {
                     return candidate;
                 }
             }
 
-            throw new DirectoryNotFoundException("Could not locate the APIHelper package root.");
+            throw new DirectoryNotFoundException("Could not locate the API package root.");
         }
 
         private sealed class RecordingRequestBuilder : IRequestBuilder

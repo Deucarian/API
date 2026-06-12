@@ -1,4 +1,4 @@
-namespace JorisHoef.APIHelper.Configuration
+namespace Deucarian.API.Configuration
 {
     /// <summary>
     /// Certificate validation behavior for requests created from <see cref="ApiClientConfig"/>.

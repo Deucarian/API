@@ -1,8 +1,8 @@
-# JorisHoef API Helper
+# Deucarian API
 
 ## Overview
 
-JorisHoef API Helper is a reusable Unity/C# API client package built around `IApiClient`.
+Deucarian API is a reusable Unity/C# API client package built around `IApiClient`.
 It wraps UnityWebRequest behind a small, testable client surface and supports
 developer-friendly code endpoints, designer-friendly ScriptableObject endpoints,
 structured error handling, authentication providers, cancellation, timeouts, and
@@ -13,7 +13,7 @@ The package is intentionally practical: use raw string routes for simple calls,
 for non-developer configuration, and `ApiRequest` only for advanced one-off
 requests.
 
-Package ID: `com.jorishoef.api-helper`
+Package ID: `com.deucarian.api`
 
 ## Core Concepts
 
@@ -38,20 +38,20 @@ Package ID: `com.jorishoef.api-helper`
 
 ## Installation
 
-APIHelper is distributed as a Unity Package Manager Git package.
+API is distributed as a Unity Package Manager Git package.
 
 Add one of these entries to your Unity project's `Packages/manifest.json`.
 
 Stable branch:
 
 ```json
-"com.jorishoef.api-helper": "https://github.com/JorisHoef/API-Helper.git#main"
+"com.deucarian.api": "https://github.com/Deucarian/API.git#main"
 ```
 
 Beta branch:
 
 ```json
-"com.jorishoef.api-helper": "https://github.com/JorisHoef/API-Helper.git#develop"
+"com.deucarian.api": "https://github.com/Deucarian/API.git#develop"
 ```
 
 Release channels:
@@ -69,7 +69,7 @@ the Git ref in `manifest.json`.
 ## Package Layout
 
 ```text
-API-Helper/
+API/
   package.json
   README.md
   CHANGELOG.md
@@ -84,7 +84,7 @@ API-Helper/
 Assembly definitions use assembly-name references instead of GUID references for
 readability and package portability. The runtime assembly has no editor-only
 references, the editor and test assemblies are Editor-only, and samples are kept
-in their own `APIHelper.Samples` assembly.
+in their own `API.Samples` assembly.
 
 ## Public API
 
@@ -104,11 +104,11 @@ Most new code should depend on `IApiClient`, create it with `ApiClientFactory.Cr
 
 ## Samples
 
-APIHelper includes lightweight learning assets under:
+API includes lightweight learning assets under:
 
 `Samples~/ExampleScene`
 
-- `ExampleScene/APIHelperExample.unity`: scene with an `ApiHelperExampleSceneController`
+- `ExampleScene/APIExample.unity`: scene with an `ApiExampleSceneController`
   wired to sample config and endpoint assets.
 - `ExampleScene/ExampleApiClientConfig.asset`: config using
   `https://jsonplaceholder.typicode.com`, safe certificate defaults, and verbose
@@ -118,9 +118,9 @@ APIHelper includes lightweight learning assets under:
 - `ExampleScene/ExampleAuthProvider.cs`: sample-only auth provider showing how a
   project can return a bearer token.
 
-To import the sample, open Unity Package Manager, select `API Helper`, expand
-`Samples`, and choose `Import` for `API Helper Example Scene`. Then open
-`APIHelperExample.unity`, select the `APIHelper Example` GameObject, and use the
+To import the sample, open Unity Package Manager, select `API`, expand
+`Samples`, and choose `Import` for `API Example Scene`. Then open
+`APIExample.unity`, select the `API Example` GameObject, and use the
 component context menu `Run Example Requests`. The sample calls require internet
 access.
 
@@ -128,7 +128,7 @@ access.
 
 Create a config asset:
 
-`Assets > Create > JorisHoef > API Helper > Client Config`
+`Assets > Create > Deucarian > API > Client Config`
 
 Set:
 
@@ -142,9 +142,9 @@ Create a client:
 ```csharp
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Core;
-using JorisHoef.APIHelper.Configuration;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Core;
+using Deucarian.API.Configuration;
+using Deucarian.API.Models;
 
 public sealed class ProjectService
 {
@@ -218,8 +218,8 @@ and images.
 ## Authentication
 
 Authentication is provided through `IApiAuthProvider`. The provider returns the
-token only; APIHelper creates the `Authorization: Bearer ...` header. The
-following example is project code; APIHelper does not include `ISessionService`.
+token only; API creates the `Authorization: Bearer ...` header. The
+following example is project code; API does not include `ISessionService`.
 
 ```csharp
 public sealed class ProjectSessionAuthProvider : IApiAuthProvider
@@ -255,9 +255,9 @@ Requests and endpoints can choose:
 
 ## Integrations
 
-APIHelper does not depend on the other JorisHoef runtime packages.
+API does not depend on the other Deucarian runtime packages.
 
-Other packages or project code can integrate by implementing `IApiAuthProvider`. Session Helper token support lives in the separate `com.jorishoef.session-helper.api-helper-bridge` package, not in APIHelper. No scripting define symbol is required for that bridge.
+Other packages or project code can integrate by implementing `IApiAuthProvider`. Session token support lives in the separate `com.deucarian.session.api-bridge` package, not in API. No scripting define symbol is required for that bridge.
 
 ## String Endpoint Workflow
 
@@ -338,7 +338,7 @@ request is sent.
 
 Create an endpoint asset:
 
-`Assets > Create > JorisHoef > API Helper > Endpoint Definition`
+`Assets > Create > Deucarian > API > Endpoint Definition`
 
 Configure:
 
@@ -355,9 +355,9 @@ Use it from a MonoBehaviour or service:
 ```csharp
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Configuration;
-using JorisHoef.APIHelper.Core;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Configuration;
+using Deucarian.API.Core;
+using Deucarian.API.Models;
 using UnityEngine;
 
 public sealed class ProjectListController : MonoBehaviour
@@ -413,7 +413,7 @@ needed. Use `ResponseFormat` when you want to override the format inferred from
 
 ## Media Types
 
-APIHelper officially supports these response shapes:
+API officially supports these response shapes:
 
 - JSON DTOs
 - `string`
@@ -467,7 +467,7 @@ var request = new ApiRequest("reports/latest.pdf", HttpMethod.GET)
 ApiResult<byte[]> result = await apiClient.SendAsync<byte[]>(request, cancellationToken);
 ```
 
-Texture responses use Unity's `DownloadHandlerTexture`. APIHelper preserves the
+Texture responses use Unity's `DownloadHandlerTexture`. API preserves the
 HTTP status code, response headers, raw bytes, and any useful text body Unity
 exposes for failed texture requests. Some servers return JSON error bodies for
 image endpoints, but `DownloadHandlerTexture` does not guarantee rich text error
@@ -537,7 +537,7 @@ ApiResult<ProfileDto> result =
 
 ### Headers
 
-APIHelper applies these default `Accept` headers when callers do not provide
+API applies these default `Accept` headers when callers do not provide
 one:
 
 | Response format | Default `Accept` |
@@ -578,11 +578,11 @@ For custom formats such as CSV, PDF, audio, or video, request `string` or
 ### Extension Points
 
 The package-level extension point for custom media is intentionally small:
-request text or bytes, then parse outside APIHelper. For example, a project can
+request text or bytes, then parse outside API. For example, a project can
 build its own CSV, PDF, audio, or video helper around `IApiClient.GetAsync<string>`
 or `IApiClient.GetAsync<byte[]>` without modifying the package.
 
-APIHelper does not currently expose a built-in `IApiResponseHandler<T>` registry.
+API does not currently expose a built-in `IApiResponseHandler<T>` registry.
 That keeps the package lightweight and avoids a framework-style plugin system.
 Add such an abstraction only if project code repeatedly needs custom response
 decoders that cannot be handled cleanly with `string` or `byte[]`.
@@ -711,7 +711,7 @@ ApiResult<Texture2D> texture = await apiClient.GetAsync<Texture2D>(ImageEndpoint
 
 ## Limitations
 
-- APIHelper uses UnityWebRequest as its built-in transport.
+- API uses UnityWebRequest as its built-in transport.
 - Built-in response handling covers JSON DTOs, `string`, `byte[]`, and `Texture2D`.
 - Audio, video, PDF, CSV, archive, and other custom formats should be downloaded as `byte[]` or `string` and decoded by application code.
 - There is no built-in response-handler registry.
@@ -723,11 +723,11 @@ ApiResult<Texture2D> texture = await apiClient.GetAsync<Texture2D>(ImageEndpoint
 ```csharp
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper;
-using JorisHoef.APIHelper.Authentication;
-using JorisHoef.APIHelper.Configuration;
-using JorisHoef.APIHelper.Core;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API;
+using Deucarian.API.Authentication;
+using Deucarian.API.Configuration;
+using Deucarian.API.Core;
+using Deucarian.API.Models;
 using UnityEngine;
 
 public sealed class ProjectsExample : MonoBehaviour
@@ -836,16 +836,16 @@ Use `.WithPathParameter("id", value)`.
 Yes. Use `ApiEndpointDefinition` assets. They convert to `ApiEndpoint` at
 runtime and share the same request pipeline.
 
-### Can APIHelper download audio or video?
+### Can API download audio or video?
 
-Yes, as bytes. APIHelper intentionally does not include built-in `AudioClip` or
+Yes, as bytes. API intentionally does not include built-in `AudioClip` or
 `VideoPlayer` integrations. Download the payload with `GetAsync<byte[]>`, then
 let your application decode, stream, cache, or pass it to a media-specific
 system.
 
 ### Why is `RawJson` obsolete?
 
-`ApiResult<T>.RawJson` was kept for compatibility, but APIHelper now supports
+`ApiResult<T>.RawJson` was kept for compatibility, but API now supports
 text, bytes, and textures too. Use `RawResponseBody` for response text.
 
 ### Can I bypass certificates for local development?

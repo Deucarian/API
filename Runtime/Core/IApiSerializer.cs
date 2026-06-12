@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal interface IApiSerializer
     {

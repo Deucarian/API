@@ -1,19 +1,19 @@
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Configuration;
-using JorisHoef.APIHelper.Core;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Configuration;
+using Deucarian.API.Core;
+using Deucarian.API.Models;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Samples
+namespace Deucarian.API.Samples
 {
     /// <summary>
     /// Example scene controller that demonstrates ApiClientConfig, IApiClient creation,
     /// GET/POST calls, and ApiResult handling.
     /// </summary>
-    public sealed class ApiHelperExampleSceneController : MonoBehaviour
+    public sealed class ApiExampleSceneController : MonoBehaviour
     {
-        [Header("APIHelper")]
+        [Header("API")]
         [SerializeField] private ApiClientConfig apiClientConfig;
         [SerializeField] private ApiEndpointDefinition getPostEndpoint;
         [SerializeField] private ApiEndpointDefinition createPostEndpoint;
@@ -31,7 +31,7 @@ namespace JorisHoef.APIHelper.Samples
 
             if (apiClientConfig == null)
             {
-                Debug.LogWarning("[APIHelper Sample] No ApiClientConfig assigned. Using a runtime default config.");
+                Debug.LogWarning("[API Sample] No ApiClientConfig assigned. Using a runtime default config.");
             }
 
             apiClient = ApiClientFactory.Create(apiClientConfig);
@@ -65,7 +65,7 @@ namespace JorisHoef.APIHelper.Samples
         {
             if (apiClient == null)
             {
-                Debug.LogError("[APIHelper Sample] API client was not created.");
+                Debug.LogError("[API Sample] API client was not created.");
                 return;
             }
 
@@ -83,13 +83,13 @@ namespace JorisHoef.APIHelper.Samples
         {
             if (endpointDefinition == null)
             {
-                Debug.LogError("[APIHelper Sample] " + label + " endpoint definition is not assigned.");
+                Debug.LogError("[API Sample] " + label + " endpoint definition is not assigned.");
                 return false;
             }
 
             if (!endpointDefinition.IsValid(out string message))
             {
-                Debug.LogError("[APIHelper Sample] " + label + " endpoint definition is invalid: " + message);
+                Debug.LogError("[API Sample] " + label + " endpoint definition is invalid: " + message);
                 return false;
             }
 
@@ -108,8 +108,8 @@ namespace JorisHoef.APIHelper.Samples
         {
             ExampleCreatePostRequest body = new ExampleCreatePostRequest
             {
-                    title = "APIHelper sample",
-                    body = "Created from the APIHelper example scene.",
+                    title = "API sample",
+                    body = "Created from the API example scene.",
                     userId = 1
             };
 
@@ -123,13 +123,13 @@ namespace JorisHoef.APIHelper.Samples
         {
             if (result.IsSuccess)
             {
-                Debug.Log("[APIHelper Sample] " + label + " succeeded. Raw response: " + result.RawResponseBody);
+                Debug.Log("[API Sample] " + label + " succeeded. Raw response: " + result.RawResponseBody);
                 return;
             }
 
             ApiError error = result.Error;
-            Debug.LogError("[APIHelper Sample] " + label + " failed: " + error?.Message);
-            Debug.LogError("[APIHelper Sample] Status=" + error?.HttpStatusCode + " Url=" + error?.RequestUrl);
+            Debug.LogError("[API Sample] " + label + " failed: " + error?.Message);
+            Debug.LogError("[API Sample] Status=" + error?.HttpStatusCode + " Url=" + error?.RequestUrl);
         }
 
         [System.Serializable]

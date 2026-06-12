@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Configuration
+namespace Deucarian.API.Configuration
 {
     /// <summary>
     /// Serializable key/value pair used for headers and query parameters in ScriptableObject assets.

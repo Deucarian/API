@@ -1,11 +1,11 @@
-namespace JorisHoef.APIHelper.Configuration
+namespace Deucarian.API.Configuration
 {
     /// <summary>
-    /// Controls APIHelper request, response, and error logging.
+    /// Controls API request, response, and error logging.
     /// </summary>
     public enum ApiLoggingMode
     {
-        /// <summary>Disable APIHelper logging.</summary>
+        /// <summary>Disable API logging.</summary>
         None,
 
         /// <summary>Log errors only.</summary>

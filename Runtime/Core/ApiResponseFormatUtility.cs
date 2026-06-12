@@ -1,8 +1,8 @@
 using System;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal static class ApiResponseFormatUtility
     {

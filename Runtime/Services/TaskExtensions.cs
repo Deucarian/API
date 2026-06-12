@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Services
+namespace Deucarian.API.Services
 {
     /// <summary>
-    /// Small Unity coroutine adapters for legacy APIHelper task workflows.
+    /// Small Unity coroutine adapters for legacy API task workflows.
     /// </summary>
     public static class TaskExtensions
     {

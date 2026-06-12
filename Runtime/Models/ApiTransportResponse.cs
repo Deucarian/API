@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Models
+namespace Deucarian.API.Models
 {
     internal sealed class ApiTransportResponse
     {

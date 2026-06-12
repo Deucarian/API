@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Models
+namespace Deucarian.API.Models
 {
     /// <summary>
     /// Lightweight code-defined endpoint description.

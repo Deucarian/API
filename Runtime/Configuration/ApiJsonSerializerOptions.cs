@@ -2,7 +2,7 @@ using System;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Configuration
+namespace Deucarian.API.Configuration
 {
     /// <summary>
     /// Serializable Newtonsoft JSON options used by <see cref="ApiClientConfig"/>.

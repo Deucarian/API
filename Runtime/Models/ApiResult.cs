@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace JorisHoef.APIHelper.Models
+namespace Deucarian.API.Models
 {
     /// <summary>
     /// Represents the outcome of an API request.
@@ -99,7 +99,7 @@ namespace JorisHoef.APIHelper.Models
         /// Raw response body. Kept for legacy naming compatibility.
         /// Use <see cref="RawResponseBody"/> for new code.
         /// </summary>
-        [Obsolete("Use RawResponseBody. APIHelper now supports text, bytes, and textures in addition to JSON.")]
+        [Obsolete("Use RawResponseBody. API now supports text, bytes, and textures in addition to JSON.")]
         public string RawJson
         {
             get => _rawResponseBody;

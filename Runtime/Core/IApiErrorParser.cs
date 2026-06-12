@@ -1,7 +1,7 @@
 using System;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal interface IApiErrorParser
     {

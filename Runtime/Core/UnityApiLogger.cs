@@ -1,9 +1,9 @@
-using JorisHoef.APIHelper.Configuration;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Configuration;
+using Deucarian.API.Models;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal sealed class UnityApiLogger : IApiLogger
     {

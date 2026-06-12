@@ -1,6 +1,6 @@
 using System;
 
-namespace JorisHoef.APIHelper.Authentication
+namespace Deucarian.API.Authentication
 {
     /// <summary>
     /// Exception raised when a request requires authentication but no usable token is available.

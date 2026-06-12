@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Services.MultipartForm
+namespace Deucarian.API.Services.MultipartForm
 {
     /// <summary>
     /// Legacy extension point for objects that add their own multipart form sections.

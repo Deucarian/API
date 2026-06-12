@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Editor
+namespace Deucarian.API.Editor
 {
     /// <summary>
     /// Toggle APIDebugSettings.LogRawJson from the Unity top menu.
@@ -9,10 +9,10 @@ namespace JorisHoef.APIHelper.Editor
     [InitializeOnLoad]
     public static class APIDebugSettingsMenu
     {
-        private const string MENU_ROOT = "JorisHoef/APIDebug/";
+        private const string MENU_ROOT = "Deucarian/APIDebug/";
 
         private const string MENU_ITEM = MENU_ROOT + "Log Raw JSON";
-        private const string PREF_KEY  = "JorisHoef.APIHelper.LogRawJson";
+        private const string PREF_KEY  = "Deucarian.API.LogRawJson";
 
         static APIDebugSettingsMenu()
         {

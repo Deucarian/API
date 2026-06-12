@@ -1,9 +1,9 @@
 using System;
 using System.Text;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal sealed class ApiResponseParser : IApiResponseParser
     {

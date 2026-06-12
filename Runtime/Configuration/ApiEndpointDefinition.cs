@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Configuration
+namespace Deucarian.API.Configuration
 {
     /// <summary>
     /// Designer-friendly endpoint asset. It converts to <see cref="ApiEndpoint"/> at runtime
@@ -14,7 +14,7 @@ namespace JorisHoef.APIHelper.Configuration
     ///     await apiClient.SendAsync&lt;ProjectDto[]&gt;(getProjectsEndpoint, cancellationToken);
     /// </code>
     /// </example>
-    [CreateAssetMenu(menuName = "JorisHoef/API Helper/Endpoint Definition", fileName = "ApiEndpointDefinition")]
+    [CreateAssetMenu(menuName = "Deucarian/API/Endpoint Definition", fileName = "ApiEndpointDefinition")]
     public sealed class ApiEndpointDefinition : ScriptableObject
     {
         [Tooltip("Friendly name shown in project assets and inspector fields.")]

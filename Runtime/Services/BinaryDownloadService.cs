@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 
-namespace JorisHoef.APIHelper.Services
+namespace Deucarian.API.Services
 {
     internal sealed class BinaryDownloadService
     {

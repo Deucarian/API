@@ -1,8 +1,8 @@
 using System;
-using JorisHoef.APIHelper.Configuration;
+using Deucarian.API.Configuration;
 using Newtonsoft.Json;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal sealed class NewtonsoftApiSerializer : IApiSerializer
     {

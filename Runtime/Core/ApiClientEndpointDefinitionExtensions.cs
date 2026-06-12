@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Configuration;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Configuration;
+using Deucarian.API.Models;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     /// <summary>
     /// Convenience methods for using ScriptableObject endpoint definitions with any <see cref="IApiClient"/>.

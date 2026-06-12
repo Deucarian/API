@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Models;
-using JorisHoef.APIHelper.Services;
+using Deucarian.API.Models;
+using Deucarian.API.Services;
 
-namespace JorisHoef.APIHelper.Calls
+namespace Deucarian.API.Calls
 {
     internal class ApiCall<TResponse>
     {

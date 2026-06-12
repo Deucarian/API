@@ -1,8 +1,8 @@
-using JorisHoef.APIHelper.Configuration;
+using Deucarian.API.Configuration;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Certificates
+namespace Deucarian.API.Certificates
 {
     /// <summary>
     /// Creates certificate handlers according to an <see cref="ApiCertificateHandlingMode"/>.

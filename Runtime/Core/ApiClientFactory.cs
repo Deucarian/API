@@ -1,11 +1,11 @@
-using JorisHoef.APIHelper.Authentication;
-using JorisHoef.APIHelper.Certificates;
-using JorisHoef.APIHelper.Configuration;
+using Deucarian.API.Authentication;
+using Deucarian.API.Certificates;
+using Deucarian.API.Configuration;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     /// <summary>
-    /// Creates default <see cref="IApiClient"/> instances from APIHelper configuration.
+    /// Creates default <see cref="IApiClient"/> instances from API configuration.
     /// This is intentionally small; application composition can still provide or wrap <see cref="IApiClient"/> directly.
     /// </summary>
     /// <example>

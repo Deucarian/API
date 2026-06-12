@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal sealed class ApiErrorParser : IApiErrorParser
     {

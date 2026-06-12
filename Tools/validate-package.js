@@ -54,12 +54,12 @@ if (!exists("package.json")) fail("package.json is missing.");
 if (!exists("README.md")) fail("README.md is missing.");
 if (!exists("CHANGELOG.md")) fail("CHANGELOG.md is missing.");
 if (!exists("LICENSE.md")) fail("LICENSE.md is missing.");
-if (!exists("Runtime/APIHelper.asmdef")) fail("Runtime/APIHelper.asmdef is missing.");
+if (!exists("Runtime/Deucarian.API.asmdef")) fail("Runtime/Deucarian.API.asmdef is missing.");
 
 const pkg = readJson("package.json");
 if (pkg) {
-  if (pkg.name !== "com.jorishoef.api-helper") {
-    fail(`package name must be com.jorishoef.api-helper, got ${pkg.name}`);
+  if (pkg.name !== "com.deucarian.api") {
+    fail(`package name must be com.deucarian.api, got ${pkg.name}`);
   }
 
   if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(pkg.version || "")) {
@@ -80,22 +80,22 @@ if (pkg) {
 }
 
 assertAsmdefContains(
-  "Runtime/APIHelper.asmdef",
+  "Runtime/Deucarian.API.asmdef",
   asmdef => Array.isArray(asmdef.includePlatforms) && asmdef.includePlatforms.length === 0,
   "Runtime assembly must not be editor-only."
 );
 
-if (exists("Editor/APIHelper.Editor.asmdef")) {
+if (exists("Editor/Deucarian.API.Editor.asmdef")) {
   assertAsmdefContains(
-    "Editor/APIHelper.Editor.asmdef",
+    "Editor/Deucarian.API.Editor.asmdef",
     asmdef => Array.isArray(asmdef.includePlatforms) && asmdef.includePlatforms.includes("Editor"),
     "Editor assembly must include only the Editor platform."
   );
 }
 
-if (exists("Tests/Editor/APIHelper.Tests.asmdef")) {
+if (exists("Tests/Editor/Deucarian.API.Tests.asmdef")) {
   assertAsmdefContains(
-    "Tests/Editor/APIHelper.Tests.asmdef",
+    "Tests/Editor/Deucarian.API.Tests.asmdef",
     asmdef =>
       Array.isArray(asmdef.includePlatforms) &&
       asmdef.includePlatforms.includes("Editor") &&
@@ -105,7 +105,7 @@ if (exists("Tests/Editor/APIHelper.Tests.asmdef")) {
   );
 }
 
-if (exists("Samples") || exists("Assets/JorisHoef/APIHelper/Samples")) {
+if (exists("Samples") || exists("Assets/Deucarian/API/Samples")) {
   fail("Package samples must live under Samples~.");
 }
 

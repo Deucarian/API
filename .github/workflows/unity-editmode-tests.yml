@@ -5,7 +5,7 @@ on:
 
 jobs:
   editmode:
-    name: APIHelper EditMode tests
+    name: API EditMode tests
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,7 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           testMode: EditMode
-          customParameters: -assemblyNames APIHelper.Tests
+          customParameters: -assemblyNames Deucarian.API.Tests
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

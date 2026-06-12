@@ -1,6 +1,6 @@
-using JorisHoef.APIHelper.Configuration;
+using Deucarian.API.Configuration;
 
-namespace JorisHoef.APIHelper
+namespace Deucarian.API
 {
     /// <summary>
     /// Legacy editor/debug toggle for raw JSON logging.
@@ -9,7 +9,7 @@ namespace JorisHoef.APIHelper
     public static class APIDebugSettings
     {
         /// <summary>
-        /// When true, APIHelper logs raw JSON response bodies in supported legacy/debug paths.
+        /// When true, API logs raw JSON response bodies in supported legacy/debug paths.
         /// </summary>
         public static bool LogRawJson;
     }

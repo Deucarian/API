@@ -1,6 +1,6 @@
-# Contributing to APIHelper
+# Contributing to API
 
-APIHelper is maintained as a package-quality Unity library. Keep changes focused,
+API is maintained as a package-quality Unity library. Keep changes focused,
 practical, and consistent with the existing `IApiClient`-based architecture.
 
 ## Documentation Maintenance
@@ -23,7 +23,7 @@ and obsolete migration messages in the same change as the API change.
 - Do not commit Unity-generated `Library`, `Temp`, `Obj`, build output, zip, or
   `.unitypackage` artifacts.
 - Add examples when a public workflow would otherwise require reading source.
-- Run the APIHelper EditMode tests after changes.
+- Run the API EditMode tests after changes.
 
 ## Release Channels
 

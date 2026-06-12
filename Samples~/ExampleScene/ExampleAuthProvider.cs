@@ -1,16 +1,16 @@
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Authentication;
+using Deucarian.API.Authentication;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Samples
+namespace Deucarian.API.Samples
 {
     /// <summary>
     /// Example-only auth provider.
     /// In a real project, retrieve the token from your session/login service instead of a serialized field.
-    /// APIHelper turns the returned token into an Authorization: Bearer header.
+    /// API turns the returned token into an Authorization: Bearer header.
     /// </summary>
-    [CreateAssetMenu(menuName = "JorisHoef/API Helper/Samples/Example Auth Provider",
+    [CreateAssetMenu(menuName = "Deucarian/API/Samples/Example Auth Provider",
                      fileName = "ExampleAuthProvider")]
     public sealed class ExampleAuthProvider : ApiAuthProviderAsset
     {

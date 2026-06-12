@@ -1,7 +1,7 @@
-using JorisHoef.APIHelper.Configuration;
+using Deucarian.API.Configuration;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Certificates
+namespace Deucarian.API.Certificates
 {
     internal sealed class DefaultCertificateHandlerFactory : ICertificateHandlerFactory
     {

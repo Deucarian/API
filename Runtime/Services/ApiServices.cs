@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Authentication;
-using JorisHoef.APIHelper.Configuration;
-using JorisHoef.APIHelper.Core;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Authentication;
+using Deucarian.API.Configuration;
+using Deucarian.API.Core;
+using Deucarian.API.Models;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Services
+namespace Deucarian.API.Services
 {
     /// <summary>
     /// Legacy and convenience facade over a configured <see cref="IApiClient"/>.

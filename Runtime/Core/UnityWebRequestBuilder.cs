@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Authentication;
-using JorisHoef.APIHelper.Certificates;
-using JorisHoef.APIHelper.Configuration;
-using JorisHoef.APIHelper.Models;
-using JorisHoef.APIHelper.Services.MultipartForm;
+using Deucarian.API.Authentication;
+using Deucarian.API.Certificates;
+using Deucarian.API.Configuration;
+using Deucarian.API.Models;
+using Deucarian.API.Services.MultipartForm;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal sealed class UnityWebRequestBuilder : IRequestBuilder
     {

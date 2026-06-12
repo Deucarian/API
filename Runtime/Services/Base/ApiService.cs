@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Calls;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Calls;
+using Deucarian.API.Models;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Services.Base
+namespace Deucarian.API.Services.Base
 {
     /// <summary>
     /// Don't have to create a new apiservice for each call, can just call ApiServices class which will instantiate these services when required

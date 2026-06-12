@@ -6,7 +6,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Certificates
+namespace Deucarian.API.Certificates
 {
     internal sealed class DefaultLikeCertificateHandler : CertificateHandler
     {

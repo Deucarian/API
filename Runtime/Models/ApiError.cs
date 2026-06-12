@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace JorisHoef.APIHelper.Models
+namespace Deucarian.API.Models
 {
     /// <summary>
     /// Structured failure details returned by <see cref="ApiResult{T}"/> when a request fails.

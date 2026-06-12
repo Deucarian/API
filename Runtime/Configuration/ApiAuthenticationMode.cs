@@ -1,4 +1,4 @@
-namespace JorisHoef.APIHelper.Configuration
+namespace Deucarian.API.Configuration
 {
     /// <summary>
     /// Default authentication behavior configured on <see cref="ApiClientConfig"/>.

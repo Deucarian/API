@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Certificates
+namespace Deucarian.API.Certificates
 {
     /// <summary>
     /// Legacy request setup helper used by older download and ApiCall paths.

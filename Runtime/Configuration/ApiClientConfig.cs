@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using JorisHoef.APIHelper.Authentication;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Authentication;
+using Deucarian.API.Models;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Configuration
+namespace Deucarian.API.Configuration
 {
     /// <summary>
     /// ScriptableObject-backed configuration for creating an <c>IApiClient</c>.
-    /// Create one from Assets/Create/JorisHoef/API Helper/Client Config, then pass it to
+    /// Create one from Assets/Create/Deucarian/API/Client Config, then pass it to
     /// <c>ApiClientFactory.Create(config)</c>.
     /// </summary>
     /// <example>
@@ -17,7 +17,7 @@ namespace JorisHoef.APIHelper.Configuration
     /// IApiClient apiClient = ApiClientFactory.Create(config);
     /// </code>
     /// </example>
-    [CreateAssetMenu(menuName = "JorisHoef/API Helper/Client Config", fileName = "ApiClientConfig")]
+    [CreateAssetMenu(menuName = "Deucarian/API/Client Config", fileName = "ApiClientConfig")]
     public sealed class ApiClientConfig : ScriptableObject
     {
         private const int DefaultTimeoutSeconds = 30;

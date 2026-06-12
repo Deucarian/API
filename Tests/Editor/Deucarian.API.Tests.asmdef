@@ -1,0 +1,21 @@
+{
+  "name": "Deucarian.API.Tests",
+  "rootNamespace": "Deucarian.API.Tests",
+  "references": [
+    "Deucarian.API"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "noEngineReferences": false
+}

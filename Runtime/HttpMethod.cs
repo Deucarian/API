@@ -1,7 +1,7 @@
-namespace JorisHoef.APIHelper
+namespace Deucarian.API
 {
     /// <summary>
-    /// HTTP methods supported by APIHelper.
+    /// HTTP methods supported by API.
     /// </summary>
     public enum HttpMethod
     {

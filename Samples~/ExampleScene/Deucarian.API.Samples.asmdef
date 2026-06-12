@@ -1,0 +1,16 @@
+{
+  "name": "Deucarian.API.Samples",
+  "rootNamespace": "Deucarian.API.Samples",
+  "references": [
+    "Deucarian.API"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

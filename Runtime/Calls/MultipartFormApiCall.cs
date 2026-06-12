@@ -1,6 +1,6 @@
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 
-namespace JorisHoef.APIHelper.Calls
+namespace Deucarian.API.Calls
 {
     internal sealed class MultipartFormApiCall<TResult> : ApiCall<TResult>
     {

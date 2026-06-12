@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Calls;
-using JorisHoef.APIHelper.Models;
-using JorisHoef.APIHelper.Services.Base;
+using Deucarian.API.Calls;
+using Deucarian.API.Models;
+using Deucarian.API.Services.Base;
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Services.MultipartForm
+namespace Deucarian.API.Services.MultipartForm
 {
     /// <summary>
     /// For any multiform data

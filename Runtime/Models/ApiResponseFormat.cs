@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace JorisHoef.APIHelper.Models
+namespace Deucarian.API.Models
 {
     /// <summary>
-    /// Describes how APIHelper should read a successful response body.
+    /// Describes how API should read a successful response body.
     /// <see cref="Auto"/> keeps the easy path: DTOs use JSON, <see cref="string"/> uses text,
     /// <see cref="byte"/> arrays use raw bytes, and <see cref="Texture2D"/> uses a texture handler.
     /// Prefer per-request or per-endpoint non-JSON overrides instead of changing

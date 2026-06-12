@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("APIHelper.Tests")]
+[assembly: InternalsVisibleTo("Deucarian.API.Tests")]

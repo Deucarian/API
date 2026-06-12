@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JorisHoef.APIHelper.Models;
+using Deucarian.API.Models;
 using UnityEngine.Networking;
 
-namespace JorisHoef.APIHelper.Core
+namespace Deucarian.API.Core
 {
     internal sealed class ApiClient : IApiClient
     {
