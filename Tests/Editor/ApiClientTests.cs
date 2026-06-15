@@ -255,16 +255,20 @@ namespace Deucarian.API.Tests
         [Test]
         public void ApiClient_ReturnsCancellationError()
         {
+            ApiClientConfig config = ApiClientConfig.CreateRuntimeDefault();
+            config.LoggingMode = ApiLoggingMode.None;
+
             ApiClient client = CreateTestClient(new RecordingRequestBuilder(),
-                                                new CancellingRequestSender());
+                                                new CancellingRequestSender(),
+                                                config: config);
 
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 cts.Cancel();
 
                 ApiResult<string> result = client.GetAsync<string>("projects", cts.Token)
-                                                 .GetAwaiter()
-                                                 .GetResult();
+                                                  .GetAwaiter()
+                                                  .GetResult();
 
                 Assert.IsFalse(result.IsSuccess);
                 Assert.IsTrue(result.Error.IsCancellation);
@@ -631,13 +635,14 @@ namespace Deucarian.API.Tests
 
         private static ApiClient CreateTestClient(IRequestBuilder builder,
                                                   IRequestSender sender,
-                                                  ApiResponseFormat defaultResponseFormat = ApiResponseFormat.Auto)
+                                                  ApiResponseFormat defaultResponseFormat = ApiResponseFormat.Auto,
+                                                  ApiClientConfig config = null)
         {
             return new ApiClient(builder,
                                  sender,
                                  new ApiResponseParser(new NewtonsoftApiSerializer()),
                                  new ApiErrorParser(),
-                                 new NullApiLogger(),
+                                 config ?? ApiClientConfig.CreateRuntimeDefault(),
                                  defaultResponseFormat);
         }
 
@@ -739,13 +744,6 @@ namespace Deucarian.API.Tests
                 cancellationToken.ThrowIfCancellationRequested();
                 return Task.FromResult(new ApiTransportResponse());
             }
-        }
-
-        private sealed class NullApiLogger : IApiLogger
-        {
-            public void LogRequest(ApiRequest request, string requestUrl) { }
-            public void LogResponse<TResponse>(ApiResult<TResponse> result) { }
-            public void LogError(ApiError error) { }
         }
 
         private sealed class RecordingApiClient : IApiClient

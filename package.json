@@ -8,6 +8,7 @@
     "name": "Deucarian"
   },
   "dependencies": {
+    "com.deucarian.logging": "0.2.2",
     "com.unity.modules.unitywebrequest": "1.0.0",
     "com.unity.nuget.newtonsoft-json": "3.2.2",
     "com.unity.modules.unitywebrequesttexture": "1.0.0",

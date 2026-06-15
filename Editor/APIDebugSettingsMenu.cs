@@ -1,5 +1,5 @@
+using Deucarian.API;
 using UnityEditor;
-using UnityEngine;
 
 namespace Deucarian.API.Editor
 {
@@ -26,7 +26,7 @@ namespace Deucarian.API.Editor
             bool newValue = !EditorPrefs.GetBool(PREF_KEY, false);
             EditorPrefs.SetBool(PREF_KEY, newValue);
             APIDebugSettings.LogRawJson = newValue;
-            Debug.Log($"APIDebugSettings.LogRawJson is now: {newValue}");
+            ApiLog.General.Info($"APIDebugSettings.LogRawJson is now: {newValue}");
         }
 
         [MenuItem(MENU_ITEM, true)]

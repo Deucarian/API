@@ -1,7 +1,9 @@
 {
   "name": "Deucarian.API",
   "rootNamespace": "Deucarian.API",
-  "references": [],
+  "references": [
+    "Deucarian.Logging"
+  ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

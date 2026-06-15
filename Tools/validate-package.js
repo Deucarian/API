@@ -67,6 +67,7 @@ if (pkg) {
   }
 
   const requiredDependencies = [
+    "com.deucarian.logging",
     "com.unity.nuget.newtonsoft-json",
     "com.unity.modules.unitywebrequest",
     "com.unity.modules.unitywebrequesttexture",
@@ -85,11 +86,30 @@ assertAsmdefContains(
   "Runtime assembly must not be editor-only."
 );
 
+assertAsmdefContains(
+  "Runtime/Deucarian.API.asmdef",
+  asmdef => Array.isArray(asmdef.references) && asmdef.references.includes("Deucarian.Logging"),
+  "Runtime assembly must reference Deucarian.Logging."
+);
+
 if (exists("Editor/Deucarian.API.Editor.asmdef")) {
   assertAsmdefContains(
     "Editor/Deucarian.API.Editor.asmdef",
     asmdef => Array.isArray(asmdef.includePlatforms) && asmdef.includePlatforms.includes("Editor"),
     "Editor assembly must include only the Editor platform."
+  );
+  assertAsmdefContains(
+    "Editor/Deucarian.API.Editor.asmdef",
+    asmdef => Array.isArray(asmdef.references) && asmdef.references.includes("Deucarian.Logging"),
+    "Editor assembly must reference Deucarian.Logging."
+  );
+}
+
+if (exists("Samples~/ExampleScene/Deucarian.API.Samples.asmdef")) {
+  assertAsmdefContains(
+    "Samples~/ExampleScene/Deucarian.API.Samples.asmdef",
+    asmdef => Array.isArray(asmdef.references) && asmdef.references.includes("Deucarian.Logging"),
+    "Sample assembly must reference Deucarian.Logging."
   );
 }
 

@@ -46,13 +46,12 @@ namespace Deucarian.API.Core
             IRequestSender requestSender = new UnityWebRequestSender();
             IApiResponseParser responseParser = new ApiResponseParser(serializer);
             IApiErrorParser errorParser = new ApiErrorParser();
-            IApiLogger logger = new UnityApiLogger(effectiveConfig);
 
             return new ApiClient(requestBuilder,
                                  requestSender,
                                  responseParser,
                                  errorParser,
-                                 logger,
+                                 effectiveConfig,
                                  effectiveConfig.DefaultResponseFormat);
         }
     }

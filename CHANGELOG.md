@@ -5,6 +5,11 @@
 - Improved README structure for overview, core concepts, public API, samples, integrations, versioning, and limitations.
 - Moved the raw JSON debug toggle under `Tools > Deucarian > API`.
 
+## 1.0.1 - 2026-06-15
+
+- Standardized package logging on com.deucarian.logging.
+- Added `ApiLog` package categories and removed the internal API logger abstraction.
+
 ## 1.0.0 - 2026-06-03
 
 - Converted APIHelper into a standalone Unity Package Manager Git package.

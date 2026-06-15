@@ -61,10 +61,16 @@ Release channels:
 - This local repo currently has no stable release tag. When release tags are published, use the tag name as the Git ref for immutable installs.
 
 The package expects Unity 2021.3 or newer and declares dependencies on
-`com.unity.nuget.newtonsoft-json` plus Unity's built-in UnityWebRequest modules.
+`com.deucarian.logging`, `com.unity.nuget.newtonsoft-json`, plus Unity's built-in UnityWebRequest modules.
 Unity may pin Git package commits in `Packages/packages-lock.json`; to update,
 open Package Manager and update the package, remove the lock entry, or change
 the Git ref in `manifest.json`.
+
+## Logging
+
+This package uses `com.deucarian.logging`.
+
+Deucarian API diagnostics use stable package categories: `Api`, `Api.Requests`, `Api.Authentication`, `Api.Certificates`, and `Api.Samples`. Configure Deucarian Logging filters by category and level to show request, authentication, certificate, or sample output independently. Entries also flow through the shared ring buffer for recent-diagnostic inspection and remain compatible with future telemetry sinks.
 
 ## Package Layout
 
@@ -169,11 +175,11 @@ ApiResult<ProjectDto[]> result = await apiClient.GetAsync<ProjectDto[]>("project
 
 if (result.IsSuccess)
 {
-    Debug.Log("Loaded projects: " + result.Data.Length);
+    ApiLog.Requests.Info("Loaded projects: " + result.Data.Length);
 }
 else
 {
-    Debug.LogError(result.Error.Message);
+    ApiLog.Requests.Error(result.Error.Message);
 }
 ```
 
@@ -379,7 +385,7 @@ public sealed class ProjectListController : MonoBehaviour
 
         if (!result.IsSuccess)
         {
-            Debug.LogError(result.Error.Message);
+            ApiLog.Requests.Error(result.Error.Message);
         }
     }
 }
@@ -632,20 +638,20 @@ else
 {
     ApiError error = result.Error;
 
-    Debug.LogError(error.Message);
-    Debug.Log("Status: " + error.HttpStatusCode);
-    Debug.Log("URL: " + error.RequestUrl);
-    Debug.Log("Raw body: " + error.RawResponseBody);
+    ApiLog.Requests.Error(error.Message);
+    ApiLog.Requests.Info("Status: " + error.HttpStatusCode);
+    ApiLog.Requests.Info("URL: " + error.RequestUrl);
+    ApiLog.Requests.Info("Raw body: " + error.RawResponseBody);
     if (error.ResponseHeaders.TryGetValue("X-Trace-Id", out string traceId))
     {
-        Debug.Log("Trace header: " + traceId);
+        ApiLog.Requests.Info("Trace header: " + traceId);
     }
 
     if (error.HasValidationErrors)
     {
         foreach (KeyValuePair<string, string[]> pair in error.ValidationErrors)
         {
-            Debug.Log(pair.Key + ": " + string.Join(", ", pair.Value));
+            ApiLog.Requests.Info(pair.Key + ": " + string.Join(", ", pair.Value));
         }
     }
 }
@@ -757,7 +763,7 @@ public sealed class ProjectsExample : MonoBehaviour
 
         if (listResult.IsFailure)
         {
-            Debug.LogError(listResult.Error.Message);
+            ApiLog.Requests.Error(listResult.Error.Message);
             return;
         }
 
@@ -767,7 +773,7 @@ public sealed class ProjectsExample : MonoBehaviour
 
         if (createResult.IsSuccess)
         {
-            Debug.Log("Created project: " + createResult.Data.Name);
+            ApiLog.Requests.Info("Created project: " + createResult.Data.Name);
         }
     }
 }

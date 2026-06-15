@@ -1,5 +1,4 @@
 using Deucarian.API.Configuration;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Deucarian.API.Certificates
@@ -62,7 +61,7 @@ namespace Deucarian.API.Certificates
                 return;
             }
 
-            Debug.Log(message);
+            ApiLog.Certificates.Info(message);
             _alreadyLogged = true;
         }
     }

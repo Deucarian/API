@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Deucarian.API.Configuration;
 using Deucarian.API.Models;
+using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 
 namespace Deucarian.API.Core
@@ -13,21 +15,21 @@ namespace Deucarian.API.Core
         private readonly IRequestSender _requestSender;
         private readonly IApiResponseParser _responseParser;
         private readonly IApiErrorParser _errorParser;
-        private readonly IApiLogger _logger;
+        private readonly ApiClientConfig _config;
         private readonly ApiResponseFormat _defaultResponseFormat;
 
         internal ApiClient(IRequestBuilder requestBuilder,
                            IRequestSender requestSender,
                            IApiResponseParser responseParser,
                            IApiErrorParser errorParser,
-                           IApiLogger logger,
+                           ApiClientConfig config,
                            ApiResponseFormat defaultResponseFormat = ApiResponseFormat.Auto)
         {
             _requestBuilder = requestBuilder ?? throw new ArgumentNullException(nameof(requestBuilder));
             _requestSender = requestSender ?? throw new ArgumentNullException(nameof(requestSender));
             _responseParser = responseParser ?? throw new ArgumentNullException(nameof(responseParser));
             _errorParser = errorParser ?? throw new ArgumentNullException(nameof(errorParser));
-            _logger = logger;
+            _config = config;
             _defaultResponseFormat = defaultResponseFormat;
         }
 
@@ -48,7 +50,7 @@ namespace Deucarian.API.Core
                         ApiResponseFormatUtility.Resolve<TResponse>(request.ResponseFormat, _defaultResponseFormat);
 
                 unityRequest = await _requestBuilder.BuildAsync(request, responseFormat, cancellationToken);
-                _logger?.LogRequest(request, unityRequest.url);
+                LogRequest(request, unityRequest.url);
 
                 transportResponse = await _requestSender.SendAsync(unityRequest, cancellationToken);
                 ApiResult<TResponse> result;
@@ -63,7 +65,7 @@ namespace Deucarian.API.Core
                     result = ApiResult<TResponse>.Failure(error, request.Method);
                 }
 
-                _logger?.LogResponse(result);
+                LogResponse(result);
                 return result;
             }
             catch (OperationCanceledException ex)
@@ -80,7 +82,7 @@ namespace Deucarian.API.Core
                 };
                 ApiResult<TResponse> result =
                         ApiResult<TResponse>.Failure(error, request?.Method ?? HttpMethod.GET);
-                _logger?.LogResponse(result);
+                LogResponse(result);
                 return result;
             }
             catch (Exception ex)
@@ -88,7 +90,7 @@ namespace Deucarian.API.Core
                 ApiError error = _errorParser.Parse(request, transportResponse, ex);
                 ApiResult<TResponse> result =
                         ApiResult<TResponse>.Failure(error, request?.Method ?? HttpMethod.GET);
-                _logger?.LogResponse(result);
+                LogResponse(result);
                 return result;
             }
             finally
@@ -159,6 +161,67 @@ namespace Deucarian.API.Core
             };
 
             return SendAsync<TResponse>(request, cancellationToken);
+        }
+
+        private void LogRequest(ApiRequest request, string requestUrl)
+        {
+            if (_config == null || _config.LoggingMode != ApiLoggingMode.Verbose)
+            {
+                return;
+            }
+
+            ApiLog.Requests.Info(request.Method + " " + requestUrl);
+        }
+
+        private void LogResponse<TResponse>(ApiResult<TResponse> result)
+        {
+            if (result == null || _config == null || _config.LoggingMode == ApiLoggingMode.None)
+            {
+                return;
+            }
+
+            if (!result.IsSuccess)
+            {
+                LogError(result.Error);
+                return;
+            }
+
+            if (_config.LoggingMode == ApiLoggingMode.Verbose)
+            {
+                ApiLog.Requests.Info(
+                    result.HttpMethod + " " + result.RequestUrl + " -> " + result.HttpStatusCode);
+            }
+
+            if ((_config.LogRawJson || APIDebugSettings.LogRawJson) &&
+                !string.IsNullOrWhiteSpace(result.RawResponseBody))
+            {
+                ApiLog.Requests.Info(
+                    "JSON Response from URL: " + result.RequestUrl + "\nJSON:\n" +
+                    GetIndentedJson(result.RawResponseBody));
+            }
+        }
+
+        private void LogError(ApiError error)
+        {
+            if (error == null || _config == null || _config.LoggingMode == ApiLoggingMode.None)
+            {
+                return;
+            }
+
+            ApiLog.Requests.Error(
+                "Error " + error.HttpStatusCode + " " + error.RequestUrl + ": " + error.Message);
+        }
+
+        private static string GetIndentedJson(string rawJson)
+        {
+            try
+            {
+                return JToken.Parse(rawJson).ToString(Newtonsoft.Json.Formatting.Indented);
+            }
+            catch
+            {
+                return rawJson;
+            }
         }
 
         private static Dictionary<string, string> CopyHeaders(Dictionary<string, string> headers)
