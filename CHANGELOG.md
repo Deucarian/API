@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 1.0.1 - 2026-06-15
 
 - Improved README structure for overview, core concepts, public API, samples, integrations, versioning, and limitations.
+- Moved the raw JSON debug toggle under `Tools > Deucarian > API`.
 
 ## 1.0.0 - 2026-06-03
 
