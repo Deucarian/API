@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Deucarian.API.Calls;
 using Deucarian.API.Models;
 using Deucarian.API.Services.Base;
-using UnityEngine;
 
 namespace Deucarian.API.Services.MultipartForm
 {
@@ -53,7 +52,7 @@ namespace Deucarian.API.Services.MultipartForm
             }
             catch(Exception ex)
             {
-                Debug.LogError(ex);
+                ApiLog.Requests.Exception(ex, "Multipart API call failed.");
 
                 return new ApiCallResult<TResponse>
                 {

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Deucarian.API.Calls;
 using Deucarian.API.Models;
 using Newtonsoft.Json.Linq;
-using UnityEngine;
 
 namespace Deucarian.API.Services.Base
 {
@@ -52,7 +51,7 @@ namespace Deucarian.API.Services.Base
                 {
                     string indentedJson = GetIndentedJson(result.RawResponseBody);
                     string jsonString = "[API Service] JSON Response from URL: " + endpoint + "\nJSON:\n" + indentedJson;
-                    Debug.Log(jsonString);
+                    ApiLog.Requests.Info(jsonString);
                 }
 #endif
 
@@ -77,7 +76,9 @@ namespace Deucarian.API.Services.Base
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Exception occurred while making API call to {endpoint}: {ex.Message}\nStack Trace: {ex.StackTrace}");
+                ApiLog.Requests.Exception(
+                    ex,
+                    $"Exception occurred while making API call to {endpoint}: {ex.Message}\nStack Trace: {ex.StackTrace}");
                 return new ApiCallResult<TResponse>
                 {
                         IsSuccess = false,
@@ -107,7 +108,7 @@ namespace Deucarian.API.Services.Base
         {
             if (result == null)
             {
-                Debug.LogError($"Error making API call to {endpoint}: Result is null, likely due to a failed API call or a null response.");
+                ApiLog.Requests.Error($"Error making API call to {endpoint}: Result is null, likely due to a failed API call or a null response.");
             }
             else
             {
@@ -117,11 +118,11 @@ namespace Deucarian.API.Services.Base
                 var originColored = $"<color=red>{origin}</color>";
 
                 string errorString = $"<color=red>Error</color> making API call to {endpoint} - HTTP Method: {result.HttpMethod} - Message: {errorMessage} - Exception: {exceptionDetails} - Origin: {originColored}";
-                Debug.LogError(errorString);
+                ApiLog.Requests.Error(errorString);
 
                 if (result.Exception is HttpRequestException httpRequestException)
                 {
-                    Debug.LogError($"HTTP Request Error: {httpRequestException.Message}");
+                    ApiLog.Requests.Error($"HTTP Request Error: {httpRequestException.Message}");
                 }
             }
         }
@@ -169,7 +170,7 @@ namespace Deucarian.API.Services.Base
             }
             catch (Exception parseEx)
             {
-                Debug.LogWarning($"Failed to parse error message JSON: {parseEx.Message}");
+                ApiLog.Requests.Warning($"Failed to parse error message JSON: {parseEx.Message}");
             }
             return null;
         }

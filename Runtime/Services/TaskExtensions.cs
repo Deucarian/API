@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Deucarian.API.Services
 {
@@ -30,7 +29,7 @@ namespace Deucarian.API.Services
             }
             else if (task.IsFaulted)
             {
-                Debug.LogError($"Task failed with exception: {task.Exception}");
+                ApiLog.General.Exception(task.Exception, "Task failed with exception.");
             }
         }
     }

@@ -2,7 +2,8 @@
   "name": "Deucarian.API.Samples",
   "rootNamespace": "Deucarian.API.Samples",
   "references": [
-    "Deucarian.API"
+    "Deucarian.API",
+    "Deucarian.Logging"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

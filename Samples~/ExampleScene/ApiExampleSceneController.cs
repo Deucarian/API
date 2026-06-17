@@ -31,7 +31,7 @@ namespace Deucarian.API.Samples
 
             if (apiClientConfig == null)
             {
-                Debug.LogWarning("[API Sample] No ApiClientConfig assigned. Using a runtime default config.");
+                ApiLog.Samples.Warning("No ApiClientConfig assigned. Using a runtime default config.");
             }
 
             apiClient = ApiClientFactory.Create(apiClientConfig);
@@ -65,7 +65,7 @@ namespace Deucarian.API.Samples
         {
             if (apiClient == null)
             {
-                Debug.LogError("[API Sample] API client was not created.");
+                ApiLog.Samples.Error("API client was not created.");
                 return;
             }
 
@@ -83,13 +83,13 @@ namespace Deucarian.API.Samples
         {
             if (endpointDefinition == null)
             {
-                Debug.LogError("[API Sample] " + label + " endpoint definition is not assigned.");
+                ApiLog.Samples.Error(label + " endpoint definition is not assigned.");
                 return false;
             }
 
             if (!endpointDefinition.IsValid(out string message))
             {
-                Debug.LogError("[API Sample] " + label + " endpoint definition is invalid: " + message);
+                ApiLog.Samples.Error(label + " endpoint definition is invalid: " + message);
                 return false;
             }
 
@@ -123,13 +123,13 @@ namespace Deucarian.API.Samples
         {
             if (result.IsSuccess)
             {
-                Debug.Log("[API Sample] " + label + " succeeded. Raw response: " + result.RawResponseBody);
+                ApiLog.Samples.Info(label + " succeeded. Raw response: " + result.RawResponseBody);
                 return;
             }
 
             ApiError error = result.Error;
-            Debug.LogError("[API Sample] " + label + " failed: " + error?.Message);
-            Debug.LogError("[API Sample] Status=" + error?.HttpStatusCode + " Url=" + error?.RequestUrl);
+            ApiLog.Samples.Error(label + " failed: " + error?.Message);
+            ApiLog.Samples.Error("Status=" + error?.HttpStatusCode + " Url=" + error?.RequestUrl);
         }
 
         [System.Serializable]

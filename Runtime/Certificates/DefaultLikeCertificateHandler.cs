@@ -3,7 +3,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Deucarian.API.Certificates
@@ -45,7 +44,7 @@ namespace Deucarian.API.Certificates
             }
             catch (Exception ex)
             {
-                Debug.LogWarning("[TLS] Exception during validation: " + ex);
+                ApiLog.Certificates.Warning("[TLS] Exception during validation: " + ex);
                 return false;
             }
             finally
@@ -70,7 +69,7 @@ namespace Deucarian.API.Certificates
             AppendChainElements(sb, chain);
             TryAppendTruncatedPem(sb, leaf);
 
-            Debug.LogWarning(sb.ToString());
+            ApiLog.Certificates.Warning(sb.ToString());
         }
 
         private static void TryAppendSubjectAlternativeNames(StringBuilder sb, X509Certificate2 leaf)

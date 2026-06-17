@@ -16,7 +16,7 @@ namespace Deucarian.API.Models
     /// }
     /// else
     /// {
-    ///     Debug.LogError(result.Error.Message);
+    ///     ApiLog.Requests.Error(result.Error.Message);
     /// }
     /// </code>
     /// </example>
