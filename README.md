@@ -263,7 +263,7 @@ Requests and endpoints can choose:
 
 API does not depend on the other Deucarian runtime packages.
 
-Other packages or project code can integrate by implementing `IApiAuthProvider`. Session token support lives in the separate `com.deucarian.session.api-bridge` package, not in API. No scripting define symbol is required for that bridge.
+Other packages or project code can integrate by implementing `IApiAuthProvider`. Session token support lives in the separate `com.deucarian.session.api-integration` package, not in API. No scripting define symbol is required for that integration.
 
 ## String Endpoint Workflow
 
@@ -595,7 +595,7 @@ decoders that cannot be handled cleanly with `string` or `byte[]`.
 
 ## Versioning
 
-Current package version: `1.0.1`.
+Current package version: `1.0.2`.
 
 Branch strategy:
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 - 2026-06-17
+
+- Renamed Session API package documentation from bridge terminology to integration terminology.
+
 ## 1.0.1 - 2026-06-15
 
 - Improved README structure for overview, core concepts, public API, samples, integrations, versioning, and limitations.
