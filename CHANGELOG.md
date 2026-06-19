@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 - 2026-06-19
+
+- Added `ApiResponseFormat.AssetBundle` with automatic `AssetBundle` response detection.
+- Added `ApiAssetBundleRequestOptions` for CRC and Unity AssetBundle cache metadata.
+- Added API transfer progress callbacks with normalized progress and byte counts.
+- Routed AssetBundle responses through `UnityWebRequestAssetBundle` and `DownloadHandlerAssetBundle` without reading `downloadHandler.data`.
+
 ## 1.0.2 - 2026-06-17
 
 - Renamed Session API package documentation from bridge terminology to integration terminology.

@@ -8,6 +8,7 @@ namespace Deucarian.API.Core
     internal interface IRequestSender
     {
         Task<ApiTransportResponse> SendAsync(UnityWebRequest request,
+                                             ApiRequest apiRequest,
                                              CancellationToken cancellationToken);
     }
 }

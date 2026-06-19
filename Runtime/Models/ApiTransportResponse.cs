@@ -16,6 +16,8 @@ namespace Deucarian.API.Models
 
         public Texture2D Texture { get; set; }
 
+        public AssetBundle AssetBundle { get; set; }
+
         public string TransportError { get; set; }
 
         public UnityWebRequest.Result UnityResult { get; set; }

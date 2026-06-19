@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Deucarian.API.Models
@@ -101,6 +102,15 @@ namespace Deucarian.API.Models
         /// Response format requested by this call. Auto infers from the generic response type.
         /// </summary>
         public ApiResponseFormat ResponseFormat { get; set; } = ApiResponseFormat.Auto;
+
+        /// <summary>
+        /// Optional AssetBundle transport options used when <see cref="ResponseFormat"/> resolves to
+        /// <see cref="ApiResponseFormat.AssetBundle"/>.
+        /// </summary>
+        public ApiAssetBundleRequestOptions AssetBundleOptions { get; set; }
+
+        /// <summary>Optional callback invoked while the underlying UnityWebRequest transfers data.</summary>
+        public Action<ApiTransferProgress> TransferProgress { get; set; }
 
         /// <summary>
         /// Compatibility escape hatch for legacy callers that pass a bearer token directly.

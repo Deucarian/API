@@ -10,6 +10,7 @@ namespace Deucarian.API.Core
         public const string TextAcceptHeader = "text/plain,*/*";
         public const string BytesAcceptHeader = "*/*";
         public const string TextureAcceptHeader = "image/png,image/jpeg,image/webp,*/*";
+        public const string AssetBundleAcceptHeader = "application/vnd.unity.assetbundle,application/octet-stream,*/*";
 
         public const string JsonContentType = "application/json";
         public const string TextContentType = "text/plain";
@@ -40,6 +41,11 @@ namespace Deucarian.API.Core
                 return ApiResponseFormat.Texture;
             }
 
+            if (typeof(AssetBundle).IsAssignableFrom(responseType))
+            {
+                return ApiResponseFormat.AssetBundle;
+            }
+
             return defaultFormat == ApiResponseFormat.Auto
                            ? ApiResponseFormat.Json
                            : defaultFormat;
@@ -57,6 +63,9 @@ namespace Deucarian.API.Core
 
                 case ApiResponseFormat.Texture:
                     return TextureAcceptHeader;
+
+                case ApiResponseFormat.AssetBundle:
+                    return AssetBundleAcceptHeader;
 
                 case ApiResponseFormat.Json:
                 case ApiResponseFormat.Auto:

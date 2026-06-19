@@ -8,6 +8,7 @@ using Deucarian.API.Certificates;
 using Deucarian.API.Configuration;
 using Deucarian.API.Models;
 using Deucarian.API.Services.MultipartForm;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Deucarian.API.Core
@@ -64,6 +65,11 @@ namespace Deucarian.API.Core
                                               ApiRequest request,
                                               ApiResponseFormat responseFormat)
         {
+            if (responseFormat == ApiResponseFormat.AssetBundle)
+            {
+                return CreateAssetBundleRequest(url, request);
+            }
+
             if (request.BodyFormat == ApiRequestBodyFormat.MultipartForm)
             {
                 return CreateMultipartRequest(url, request, responseFormat);
@@ -84,6 +90,52 @@ namespace Deucarian.API.Core
             return webRequest;
         }
 
+        private static UnityWebRequest CreateAssetBundleRequest(string url, ApiRequest request)
+        {
+            if (request.Method != HttpMethod.GET)
+            {
+                throw new InvalidOperationException("AssetBundle responses are supported for GET requests only.");
+            }
+
+            if (request.Body != null)
+            {
+                throw new InvalidOperationException("AssetBundle GET requests cannot include a request body.");
+            }
+
+            ApiAssetBundleRequestOptions options = request.AssetBundleOptions;
+            uint crc = options != null ? options.Crc : 0;
+
+            if (options == null || options.CacheMode == ApiAssetBundleCacheMode.Disabled)
+            {
+                return UnityWebRequestAssetBundle.GetAssetBundle(url, crc);
+            }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return UnityWebRequestAssetBundle.GetAssetBundle(url, crc);
+#else
+            Hash128 hash;
+            if (TryGetCacheHash(options.CacheHash, out hash))
+            {
+                if (!string.IsNullOrWhiteSpace(options.CacheKey))
+                {
+                    return UnityWebRequestAssetBundle.GetAssetBundle(
+                        url,
+                        new CachedAssetBundle(options.CacheKey.Trim(), hash),
+                        crc);
+                }
+
+                return UnityWebRequestAssetBundle.GetAssetBundle(url, hash, crc);
+            }
+
+            if (options.CacheVersion.HasValue)
+            {
+                return UnityWebRequestAssetBundle.GetAssetBundle(url, options.CacheVersion.Value, crc);
+            }
+
+            return UnityWebRequestAssetBundle.GetAssetBundle(url, crc);
+#endif
+        }
+
         private UnityWebRequest CreateMultipartRequest(string url,
                                                        ApiRequest request,
                                                        ApiResponseFormat responseFormat)
@@ -102,9 +154,13 @@ namespace Deucarian.API.Core
 
         private static DownloadHandler CreateDownloadHandler(ApiResponseFormat responseFormat)
         {
-            return responseFormat == ApiResponseFormat.Texture
-                           ? new DownloadHandlerTexture(true)
-                           : new DownloadHandlerBuffer();
+            switch (responseFormat)
+            {
+                case ApiResponseFormat.Texture:
+                    return new DownloadHandlerTexture(true);
+                default:
+                    return new DownloadHandlerBuffer();
+            }
         }
 
         private byte[] CreatePayload(ApiRequest request)
@@ -320,6 +376,25 @@ namespace Deucarian.API.Core
         private static bool RequestCanHaveBody(HttpMethod method)
         {
             return method == HttpMethod.POST || method == HttpMethod.PUT || method == HttpMethod.PATCH;
+        }
+
+        private static bool TryGetCacheHash(string cacheHash, out Hash128 hash)
+        {
+            hash = default(Hash128);
+            if (string.IsNullOrWhiteSpace(cacheHash))
+            {
+                return false;
+            }
+
+            try
+            {
+                hash = Hash128.Parse(cacheHash.Trim());
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static bool ContainsHeader(Dictionary<string, string> headers, string key)

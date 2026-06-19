@@ -384,6 +384,22 @@ namespace Deucarian.API.Tests
         }
 
         [Test]
+        public void ApiClient_AutoMapsAssetBundleResponseType()
+        {
+            RecordingRequestBuilder builder = new RecordingRequestBuilder();
+            ApiClient client = CreateTestClient(builder, new SuccessRequestSender(null));
+
+            ApiResult<AssetBundle> result =
+                    client.GetAsync<AssetBundle>("bundles/model", CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult();
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.That(result.Error.Message, Does.Contain("AssetBundle response could not be decoded"));
+            Assert.AreEqual(ApiResponseFormat.AssetBundle, builder.LastResponseFormat);
+        }
+
+        [Test]
         public void ApiClient_SpecialResponseTypesIgnoreGlobalDefaultResponseFormat()
         {
             RecordingRequestBuilder textBuilder = new RecordingRequestBuilder();
@@ -432,10 +448,50 @@ namespace Deucarian.API.Tests
             Assert.That(ex.Message, Does.Contain("https://example.com/images/avatar"));
         }
 
+        [Test]
+        public void ResponseParser_RejectsAssetBundleFormatForIncompatibleType()
+        {
+            ApiResponseParser parser = new ApiResponseParser(new NewtonsoftApiSerializer());
+            ApiRequest request = new ApiRequest("bundles/model", HttpMethod.GET);
+            ApiTransportResponse response = new ApiTransportResponse
+            {
+                    StatusCode = 200,
+                    RequestUrl = "https://example.com/bundles/model",
+                    UnityResult = UnityWebRequest.Result.Success
+            };
+
+            InvalidOperationException ex =
+                    Assert.Throws<InvalidOperationException>(() =>
+                            parser.Parse<byte[]>(request, response, ApiResponseFormat.AssetBundle));
+
+            Assert.That(ex.Message, Does.Contain("requires TResponse AssetBundle"));
+        }
+
+        [Test]
+        public void ResponseParser_FailsClearlyWhenAssetBundleCannotDecode()
+        {
+            ApiResponseParser parser = new ApiResponseParser(new NewtonsoftApiSerializer());
+            ApiRequest request = new ApiRequest("bundles/model", HttpMethod.GET);
+            ApiTransportResponse response = new ApiTransportResponse
+            {
+                    StatusCode = 200,
+                    RequestUrl = "https://example.com/bundles/model",
+                    UnityResult = UnityWebRequest.Result.Success
+            };
+
+            InvalidOperationException ex =
+                    Assert.Throws<InvalidOperationException>(() =>
+                            parser.Parse<AssetBundle>(request, response, ApiResponseFormat.AssetBundle));
+
+            Assert.That(ex.Message, Does.Contain("AssetBundle response could not be decoded"));
+            Assert.That(ex.Message, Does.Contain("https://example.com/bundles/model"));
+        }
+
         [TestCase(ApiResponseFormat.Json, "application/json")]
         [TestCase(ApiResponseFormat.Text, "text/plain,*/*")]
         [TestCase(ApiResponseFormat.Bytes, "*/*")]
         [TestCase(ApiResponseFormat.Texture, "image/png,image/jpeg,image/webp,*/*")]
+        [TestCase(ApiResponseFormat.AssetBundle, "application/vnd.unity.assetbundle,application/octet-stream,*/*")]
         public void RequestBuilder_AppliesAcceptHeaderDefaults(ApiResponseFormat responseFormat,
                                                                string expectedAccept)
         {
@@ -449,6 +505,107 @@ namespace Deucarian.API.Tests
             {
                 Assert.AreEqual(expectedAccept, webRequest.GetRequestHeader("Accept"));
             }
+        }
+
+        [Test]
+        public void RequestBuilder_UsesAssetBundleDownloadHandler()
+        {
+            UnityWebRequestBuilder builder = CreateRequestBuilder();
+            ApiRequest request = new ApiRequest("bundles/model", HttpMethod.GET)
+            {
+                    ResponseFormat = ApiResponseFormat.AssetBundle,
+                    TimeoutSeconds = 9,
+                    AssetBundleOptions = new ApiAssetBundleRequestOptions
+                    {
+                            CacheMode = ApiAssetBundleCacheMode.UseUnityCache,
+                            CacheKey = "model-bundle",
+                            CacheHash = "0123456789abcdef0123456789abcdef",
+                            Crc = 123
+                    }
+            };
+            request.Headers["X-Trace"] = "abc";
+
+            using (UnityWebRequest webRequest =
+                   builder.BuildAsync(request, ApiResponseFormat.AssetBundle, CancellationToken.None)
+                          .GetAwaiter()
+                          .GetResult())
+            {
+                Assert.AreEqual("GET", webRequest.method);
+                Assert.IsInstanceOf<DownloadHandlerAssetBundle>(webRequest.downloadHandler);
+                Assert.AreEqual(9, webRequest.timeout);
+                Assert.AreEqual("abc", webRequest.GetRequestHeader("X-Trace"));
+                Assert.AreEqual("application/vnd.unity.assetbundle,application/octet-stream,*/*",
+                                webRequest.GetRequestHeader("Accept"));
+            }
+        }
+
+        [Test]
+        public void RequestBuilder_AcceptsAssetBundleCacheVariants()
+        {
+            UnityWebRequestBuilder builder = CreateRequestBuilder();
+
+            ApiAssetBundleRequestOptions[] options =
+            {
+                    new ApiAssetBundleRequestOptions { CacheMode = ApiAssetBundleCacheMode.Disabled, Crc = 1 },
+                    new ApiAssetBundleRequestOptions
+                    {
+                            CacheMode = ApiAssetBundleCacheMode.UseUnityCache,
+                            CacheHash = "0123456789abcdef0123456789abcdef",
+                            Crc = 2
+                    },
+                    new ApiAssetBundleRequestOptions
+                    {
+                            CacheMode = ApiAssetBundleCacheMode.UseUnityCache,
+                            CacheVersion = 7,
+                            Crc = 3
+                    }
+            };
+
+            foreach (ApiAssetBundleRequestOptions option in options)
+            {
+                ApiRequest request = new ApiRequest("bundles/model", HttpMethod.GET)
+                {
+                        AssetBundleOptions = option
+                };
+
+                using (UnityWebRequest webRequest =
+                       builder.BuildAsync(request, ApiResponseFormat.AssetBundle, CancellationToken.None)
+                              .GetAwaiter()
+                              .GetResult())
+                {
+                    Assert.IsInstanceOf<DownloadHandlerAssetBundle>(webRequest.downloadHandler);
+                }
+            }
+        }
+
+        [Test]
+        public void RequestBuilder_RejectsNonGetAssetBundleRequests()
+        {
+            UnityWebRequestBuilder builder = CreateRequestBuilder();
+            ApiRequest request = new ApiRequest("bundles/model", HttpMethod.POST)
+            {
+                    Body = new { name = "model" }
+            };
+
+            InvalidOperationException ex =
+                    Assert.Throws<InvalidOperationException>(() =>
+                            builder.BuildAsync(request, ApiResponseFormat.AssetBundle, CancellationToken.None)
+                                   .GetAwaiter()
+                                   .GetResult());
+
+            Assert.That(ex.Message, Does.Contain("GET"));
+        }
+
+        [Test]
+        public void TransferProgress_ClampsProgressAndBytes()
+        {
+            ApiTransferProgress progress = ApiTransferProgress.Create(1.5f, -1f, -42, 128, true);
+
+            Assert.AreEqual(1f, progress.DownloadProgress);
+            Assert.AreEqual(0f, progress.UploadProgress);
+            Assert.AreEqual(0, progress.DownloadedBytes);
+            Assert.AreEqual(128, progress.UploadedBytes);
+            Assert.IsTrue(progress.IsDone);
         }
 
         [Test]
@@ -722,6 +879,7 @@ namespace Deucarian.API.Tests
             }
 
             public Task<ApiTransportResponse> SendAsync(UnityWebRequest request,
+                                                        ApiRequest apiRequest,
                                                         CancellationToken cancellationToken)
             {
                 return Task.FromResult(new ApiTransportResponse
@@ -739,6 +897,7 @@ namespace Deucarian.API.Tests
         private sealed class CancellingRequestSender : IRequestSender
         {
             public Task<ApiTransportResponse> SendAsync(UnityWebRequest request,
+                                                        ApiRequest apiRequest,
                                                         CancellationToken cancellationToken)
             {
                 cancellationToken.ThrowIfCancellationRequested();

@@ -5,7 +5,8 @@ namespace Deucarian.API.Models
     /// <summary>
     /// Describes how API should read a successful response body.
     /// <see cref="Auto"/> keeps the easy path: DTOs use JSON, <see cref="string"/> uses text,
-    /// <see cref="byte"/> arrays use raw bytes, and <see cref="Texture2D"/> uses a texture handler.
+    /// <see cref="byte"/> arrays use raw bytes, <see cref="Texture2D"/> uses a texture handler,
+    /// and <see cref="AssetBundle"/> uses Unity's AssetBundle transport handler.
     /// Prefer per-request or per-endpoint non-JSON overrides instead of changing
     /// ApiClientConfig.DefaultResponseFormat for an entire client.
     /// </summary>
@@ -24,6 +25,13 @@ namespace Deucarian.API.Models
         Bytes = 3,
 
         /// <summary>Decode the response body as a texture. Valid with <see cref="Texture2D"/> responses.</summary>
-        Texture = 4
+        Texture = 4,
+
+        /// <summary>
+        /// Load the response body as an AssetBundle. Valid with <see cref="AssetBundle"/> responses.
+        /// Error bodies may be unavailable because Unity's AssetBundle download handler does not expose
+        /// response bytes in the same way as buffered text/byte responses.
+        /// </summary>
+        AssetBundle = 5
     }
 }

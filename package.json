@@ -1,8 +1,8 @@
 {
   "name": "com.deucarian.api",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "displayName": "Deucarian API",
-  "description": "A reusable Unity API client package with JSON, text, byte, texture, ScriptableObject endpoint, and code-defined endpoint workflows.",
+  "description": "A reusable Unity API client package with JSON, text, byte, texture, AssetBundle, ScriptableObject endpoint, and code-defined endpoint workflows.",
   "unity": "2021.3",
   "author": {
     "name": "Deucarian"
@@ -15,6 +15,8 @@
     "com.deucarian.logging": "0.2.5",
     "com.unity.modules.unitywebrequest": "1.0.0",
     "com.unity.nuget.newtonsoft-json": "3.2.2",
+    "com.unity.modules.assetbundle": "1.0.0",
+    "com.unity.modules.unitywebrequestassetbundle": "1.0.0",
     "com.unity.modules.unitywebrequesttexture": "1.0.0",
     "com.unity.modules.unitywebrequestwww": "1.0.0"
   },

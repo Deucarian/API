@@ -56,6 +56,16 @@ namespace Deucarian.API.Core
 
                     return (TResponse)(object)response?.Texture;
 
+                case ApiResponseFormat.AssetBundle:
+                    EnsureAssetBundleType(responseType, responseFormat);
+                    if (response?.AssetBundle == null)
+                    {
+                        throw new InvalidOperationException(
+                                "AssetBundle response could not be decoded" + GetRequestUrlSuffix(response) + ".");
+                    }
+
+                    return (TResponse)(object)response.AssetBundle;
+
                 case ApiResponseFormat.Json:
                 case ApiResponseFormat.Auto:
                 default:
@@ -83,6 +93,15 @@ namespace Deucarian.API.Core
             {
                 throw new InvalidOperationException(
                         "ApiResponseFormat." + responseFormat + " requires TResponse Texture2D.");
+            }
+        }
+
+        private static void EnsureAssetBundleType(Type responseType, ApiResponseFormat responseFormat)
+        {
+            if (!typeof(AssetBundle).IsAssignableFrom(responseType))
+            {
+                throw new InvalidOperationException(
+                        "ApiResponseFormat." + responseFormat + " requires TResponse AssetBundle.");
             }
         }
 
