@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 - 2026-06-22
+
+- Promoted the prepared API 1.1.1 release metadata into develop.
+
 ## 1.1.0 - 2026-06-19
 
 - Added `ApiResponseFormat.AssetBundle` with automatic `AssetBundle` response detection.
