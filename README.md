@@ -875,3 +875,9 @@ deprecated, or removed. This includes:
 - Sample scripts or scenes when public workflow behavior changes.
 - Obsolete messages that point to the current replacement API.
 - Contributor guidance in `CONTRIBUTING.md` when process expectations change.
+
+## Architecture / Contributor Notes
+
+- [AGENTS.md](AGENTS.md) contains repository-specific ownership and Codex guidance.
+- Deucarian architecture rules live in [Package Registry](https://github.com/Deucarian/Package-Registry/blob/develop/ARCHITECTURE.md).
+- Capability ownership is tracked in [CAPABILITY_OWNERSHIP.md](https://github.com/Deucarian/Package-Registry/blob/develop/CAPABILITY_OWNERSHIP.md).
