@@ -13,6 +13,7 @@ using Deucarian.API.Services;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.TestTools;
 
 namespace Deucarian.API.Tests
 {
@@ -389,6 +390,9 @@ namespace Deucarian.API.Tests
             RecordingRequestBuilder builder = new RecordingRequestBuilder();
             ApiClient client = CreateTestClient(builder, new SuccessRequestSender(null));
 
+            LogAssert.Expect(
+                LogType.Error,
+                "[Deucarian.Api.Requests] Error 200 https://example.com/bundles/model: AssetBundle response could not be decoded for https://example.com/bundles/model.");
             ApiResult<AssetBundle> result =
                     client.GetAsync<AssetBundle>("bundles/model", CancellationToken.None)
                           .GetAwaiter()
