@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2 - 2026-06-22
+
+- Accepted the public release automation state for `com.deucarian.api` 1.1.2 on develop.
+
 ## 1.1.1 - 2026-06-22
 
 - Promoted the prepared API 1.1.1 release metadata into develop.
