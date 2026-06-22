@@ -4,17 +4,12 @@ on:
   pull_request:
   push:
     branches:
-      - main
       - develop
+      - main
 
 jobs:
   validate:
-    name: Validate UPM package
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate package layout
-        run: node Tools/validate-package.js
+    name: Shared package validation
+    uses: Deucarian/Package-Registry/.github/workflows/deucarian-package-validation.yml@develop
+    with:
+      package-config: deucarian-package.json

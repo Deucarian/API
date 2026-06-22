@@ -1,0 +1,32 @@
+{
+  "packageId": "com.deucarian.api",
+  "displayName": "Deucarian API",
+  "ownedCapabilities": [
+    "api-http-client"
+  ],
+  "runtimeAssemblies": [
+    "Deucarian.API"
+  ],
+  "editorAssemblies": [
+    "Deucarian.API.Editor"
+  ],
+  "sampleAssemblies": [
+    "Deucarian.API.Samples"
+  ],
+  "testAssemblies": [
+    "Deucarian.API.Tests"
+  ],
+  "requiredDependencies": [
+    "com.deucarian.logging",
+    "com.unity.modules.assetbundle",
+    "com.unity.modules.unitywebrequest",
+    "com.unity.modules.unitywebrequestassetbundle",
+    "com.unity.modules.unitywebrequesttexture",
+    "com.unity.modules.unitywebrequestwww",
+    "com.unity.nuget.newtonsoft-json"
+  ],
+  "optionalVersionDefinedDependencies": [],
+  "allowedDirectDebugCalls": [],
+  "allowedDirectUnityObjectLifetimeCalls": [],
+  "expectedSamplesRoot": "Samples~"
+}
