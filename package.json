@@ -1,6 +1,6 @@
 {
   "name": "com.deucarian.api",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "displayName": "Deucarian API",
   "description": "A reusable Unity API client package with JSON, text, byte, texture, AssetBundle, ScriptableObject endpoint, and code-defined endpoint workflows.",
   "unity": "2021.3",
