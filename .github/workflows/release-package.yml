@@ -1,9 +1,15 @@
 name: Release Package Artifact
 
 on:
-  push:
-    tags:
-      - "v*"
+  # Git-only stable distribution is active for now; tag/GitHub releases are deferred.
+  # Do not trigger release mode without a dedicated release wave.
+  workflow_dispatch:
+    inputs:
+      confirm_release:
+        description: "Type exactly: I understand this publishes a Deucarian package"
+        required: true
+        type: string
+        default: ""
 
 jobs:
   package:
@@ -11,6 +17,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Git-only release policy guard
+        shell: bash
+        env:
+          INPUT_CONFIRM_RELEASE: ${{ inputs.confirm_release }}
+        run: |
+          if [ "$INPUT_CONFIRM_RELEASE" != "I understand this publishes a Deucarian package" ]; then
+            echo "::error::Release workflows require exact confirm_release acknowledgement."
+            exit 1
+          fi
+          echo "::error::Git-only stable distribution is active for now; tag and GitHub release creation are deferred to a dedicated release wave."
+          exit 1
       - name: Checkout
         uses: actions/checkout@v4
 
