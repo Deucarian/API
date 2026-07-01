@@ -871,6 +871,20 @@ normal certificate validation.
 They pass auth decisions and tokens per call, which makes APIs noisy and harder
 to configure safely. Use `IApiClient` with config/auth providers instead.
 
+## Validation
+
+Run the shared package validator from this repository root:
+
+```powershell
+python C:/Repositories/Package-Registry/Tools/deucarian_package_validator.py --registry-root C:/Repositories/Package-Registry --repository-root . --config deucarian-package.json
+```
+
+Documentation-only updates should still pass:
+
+```powershell
+git diff --check
+```
+
 ## Documentation Maintenance Policy
 
 Documentation must be updated whenever public APIs are added, changed,
@@ -887,3 +901,7 @@ deprecated, or removed. This includes:
 - [AGENTS.md](AGENTS.md) contains repository-specific ownership and Codex guidance.
 - Deucarian architecture rules live in [Package Registry](https://github.com/Deucarian/Package-Registry/blob/develop/ARCHITECTURE.md).
 - Capability ownership is tracked in [CAPABILITY_OWNERSHIP.md](https://github.com/Deucarian/Package-Registry/blob/develop/CAPABILITY_OWNERSHIP.md).
+
+## License
+
+MIT. See `LICENSE.md`.
