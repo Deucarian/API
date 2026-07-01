@@ -15,6 +15,12 @@ requests.
 
 Package ID: `com.deucarian.api`
 
+## When To Use This
+
+Use this package when a Unity project needs reusable HTTP/API transport, request building, response parsing, JSON/text/byte/texture responses, ScriptableObject endpoint configuration, authentication providers, cancellation-aware calls, and Deucarian Logging-backed API diagnostics.
+
+Do not use this package to own session lifecycle, object-loading source resolution, package installation, gameplay runtime behavior, or Unity object lifetime cleanup. Those capabilities belong to their owning Deucarian packages.
+
 ## Core Concepts
 
 - `IApiClient` as the main injectable dependency.
