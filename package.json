@@ -12,6 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/Deucarian/API.git"
   },
+  "documentationUrl": "https://github.com/Deucarian/API/blob/main/README.md",
+  "changelogUrl": "https://github.com/Deucarian/API/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/Deucarian/API/blob/main/LICENSE.md",
   "dependencies": {
     "com.deucarian.logging": "1.0.1",
     "com.unity.modules.unitywebrequest": "1.0.0",
