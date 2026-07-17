@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.4 - 2026-07-17
+
+- Documented the Example Scene sample and aligned the exact Logging dependency for the portfolio release.
+- Aligned expected API error-log coverage with the canonical Deucarian Logging console format.
+
 ## 1.1.3 - 2026-06-22
 
 - Updated the exact `com.deucarian.logging` dependency to `1.0.1`.
