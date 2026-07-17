@@ -1,6 +1,7 @@
 {
   "packageId": "com.deucarian.api",
   "displayName": "Deucarian API",
+  "samplePolicy": "playable-scene",
   "ownedCapabilities": [
     "api-http-client"
   ],
