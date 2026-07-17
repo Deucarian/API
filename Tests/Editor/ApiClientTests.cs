@@ -392,7 +392,7 @@ namespace Deucarian.API.Tests
 
             LogAssert.Expect(
                 LogType.Error,
-                "[Deucarian.Api.Requests] Error 200 https://example.com/bundles/model: AssetBundle response could not be decoded for https://example.com/bundles/model.");
+                "[Api.Requests] Error 200 https://example.com/bundles/model: AssetBundle response could not be decoded for https://example.com/bundles/model.");
             ApiResult<AssetBundle> result =
                     client.GetAsync<AssetBundle>("bundles/model", CancellationToken.None)
                           .GetAwaiter()
