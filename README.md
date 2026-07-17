@@ -601,7 +601,7 @@ decoders that cannot be handled cleanly with `string` or `byte[]`.
 
 ## Versioning
 
-Current package version: `1.1.3`.
+Current package version: `1.1.4`.
 
 Branch strategy:
 
