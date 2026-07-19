@@ -9,7 +9,7 @@ namespace Deucarian.API.Editor
     [InitializeOnLoad]
     public static class APIDebugSettingsMenu
     {
-        private const string MENU_ROOT = "Tools/Deucarian/API/";
+        private const string MENU_ROOT = "Tools/Deucarian/Runtime Services/API/";
 
         private const string MENU_ITEM = MENU_ROOT + "Log Raw JSON";
         private const string PREF_KEY  = "Deucarian.API.LogRawJson";
