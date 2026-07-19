@@ -904,4 +904,4 @@ deprecated, or removed. This includes:
 
 ## License
 
-MIT. See `LICENSE.md`.
+MIT. See [LICENSE.md](LICENSE.md).
