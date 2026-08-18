@@ -277,6 +277,87 @@ namespace Deucarian.API.Tests
         }
 
         [Test]
+        public void ApiClient_SuppressesAllLoggingForSensitiveRequest()
+        {
+            ApiClientConfig config = ApiClientConfig.CreateRuntimeDefault();
+            config.LoggingMode = ApiLoggingMode.Verbose;
+            config.LogRawJson = true;
+            bool previousGlobalRawJson = APIDebugSettings.LogRawJson;
+            APIDebugSettings.LogRawJson = true;
+
+            try
+            {
+                ApiClient client = CreateTestClient(
+                    new RecordingRequestBuilder(),
+                    new SuccessRequestSender(
+                        "{\"access_token\":\"synthetic-test-token\"}"),
+                    config: config);
+                ApiRequest request = new ApiRequest(
+                    "https://auth.example.invalid/login",
+                    HttpMethod.POST,
+                    ApiAuthenticationRequirement.Disabled)
+                {
+                    Body = new { password = "synthetic-test-secret" },
+                    SuppressLogging = true
+                };
+
+                ApiResult<Dictionary<string, string>> result =
+                    client.SendAsync<Dictionary<string, string>>(
+                            request,
+                            CancellationToken.None)
+                        .GetAwaiter()
+                        .GetResult();
+
+                Assert.IsTrue(result.IsSuccess);
+                LogAssert.NoUnexpectedReceived();
+            }
+            finally
+            {
+                APIDebugSettings.LogRawJson = previousGlobalRawJson;
+                UnityEngine.Object.DestroyImmediate(config);
+            }
+        }
+
+        [Test]
+        public void ApiClient_SuppressesSensitiveFailureLogging()
+        {
+            ApiClientConfig config = ApiClientConfig.CreateRuntimeDefault();
+            config.LoggingMode = ApiLoggingMode.Verbose;
+
+            try
+            {
+                ApiClient client = CreateTestClient(
+                    new RecordingRequestBuilder(),
+                    new FailureRequestSender(
+                        401,
+                        "{\"message\":\"synthetic sensitive failure\"}"),
+                    config: config);
+                ApiRequest request = new ApiRequest(
+                    "https://auth.example.invalid/login?identity=hidden",
+                    HttpMethod.POST,
+                    ApiAuthenticationRequirement.Disabled)
+                {
+                    SuppressLogging = true
+                };
+
+                ApiResult<Dictionary<string, string>> result =
+                    client.SendAsync<Dictionary<string, string>>(
+                            request,
+                            CancellationToken.None)
+                        .GetAwaiter()
+                        .GetResult();
+
+                Assert.IsFalse(result.IsSuccess);
+                Assert.AreEqual(401, result.HttpStatusCode);
+                LogAssert.NoUnexpectedReceived();
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(config);
+            }
+        }
+
+        [Test]
         public void EndpointDefinition_ConvertsToSharedEndpoint()
         {
             ApiEndpointDefinition endpoint = ScriptableObject.CreateInstance<ApiEndpointDefinition>();
@@ -906,6 +987,33 @@ namespace Deucarian.API.Tests
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 return Task.FromResult(new ApiTransportResponse());
+            }
+        }
+
+        private sealed class FailureRequestSender : IRequestSender
+        {
+            private readonly long statusCode;
+            private readonly string rawBody;
+
+            internal FailureRequestSender(long statusCode, string rawBody)
+            {
+                this.statusCode = statusCode;
+                this.rawBody = rawBody;
+            }
+
+            public Task<ApiTransportResponse> SendAsync(
+                UnityWebRequest request,
+                ApiRequest apiRequest,
+                CancellationToken cancellationToken)
+            {
+                return Task.FromResult(new ApiTransportResponse
+                {
+                    StatusCode = statusCode,
+                    RequestUrl = request.url,
+                    RawBody = rawBody,
+                    RawBytes = Encoding.UTF8.GetBytes(rawBody),
+                    UnityResult = UnityWebRequest.Result.ProtocolError
+                });
             }
         }
 

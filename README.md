@@ -419,6 +419,11 @@ ApiResult<ProjectDto[]> result =
     await apiClient.SendAsync<ProjectDto[]>(request, cancellationToken);
 ```
 
+For credential exchanges and token endpoints, set
+`request.SuppressLogging = true`. This overrides verbose and raw-JSON logging
+for the entire request so URLs, response bodies, and errors remain out of
+diagnostic output.
+
 POST raw or multipart content by setting `Body`, `BodyFormat`, and headers as
 needed. Use `ResponseFormat` when you want to override the format inferred from
 `TResponse`.
@@ -601,7 +606,7 @@ decoders that cannot be handled cleanly with `string` or `byte[]`.
 
 ## Versioning
 
-Current package version: `1.1.4`.
+Current package version: `1.1.5`.
 
 Branch strategy:
 
