@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.6 - 2026-08-18
+
+- Routed the package-owned API diagnostics menu through the shared
+  `DeucarianEditorUxStandards.MenuRoot` convention.
+
 ## 1.1.5 - 2026-08-18
 
 - Added per-request logging suppression for credential and token exchanges so
