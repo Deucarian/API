@@ -840,6 +840,7 @@ namespace Deucarian.API.Tests
             Assert.That(editor, Does.Contain("\"includePlatforms\": ["));
             Assert.That(editor, Does.Contain("\"Editor\""));
             Assert.That(editor, Does.Contain("\"Deucarian.API\""));
+            Assert.That(editor, Does.Contain("\"Deucarian.Editor\""));
             Assert.That(editor, Does.Not.Contain("GUID:"));
             Assert.That(tests, Does.Contain("\"includePlatforms\": ["));
             Assert.That(tests, Does.Contain("\"Editor\""));
@@ -850,6 +851,17 @@ namespace Deucarian.API.Tests
             Assert.That(samples, Does.Contain("\"Deucarian.API\""));
             Assert.That(samples, Does.Not.Contain("GUID:"));
             Assert.That(samples, Does.Not.Contain("\"Deucarian.API.Editor\""));
+        }
+
+        [Test]
+        public void PackageMetadata_DeclaresSharedEditorMenuDependency()
+        {
+            string apiRoot = FindPackageRoot();
+            string packageManifest = File.ReadAllText(Path.Combine(apiRoot, "package.json"));
+            string packageConfig = File.ReadAllText(Path.Combine(apiRoot, "deucarian-package.json"));
+
+            Assert.That(packageManifest, Does.Contain("\"com.deucarian.editor\""));
+            Assert.That(packageConfig, Does.Contain("\"com.deucarian.editor\""));
         }
 
         [Test]

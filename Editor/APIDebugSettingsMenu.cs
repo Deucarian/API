@@ -1,4 +1,5 @@
 using Deucarian.API;
+using Deucarian.Editor;
 using UnityEditor;
 
 namespace Deucarian.API.Editor
@@ -9,7 +10,7 @@ namespace Deucarian.API.Editor
     [InitializeOnLoad]
     public static class APIDebugSettingsMenu
     {
-        private const string MENU_ROOT = "Tools/Deucarian/Runtime Services/API/";
+        private const string MENU_ROOT = DeucarianEditorUxStandards.MenuRoot + "/Runtime Services/API/";
 
         private const string MENU_ITEM = MENU_ROOT + "Log Raw JSON";
         private const string PREF_KEY  = "Deucarian.API.LogRawJson";

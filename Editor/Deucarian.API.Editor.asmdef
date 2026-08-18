@@ -3,6 +3,7 @@
   "rootNamespace": "Deucarian.API.Editor",
   "references": [
     "Deucarian.API",
+    "Deucarian.Editor",
     "Deucarian.Logging"
   ],
   "includePlatforms": [
