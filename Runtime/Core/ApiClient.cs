@@ -65,7 +65,7 @@ namespace Deucarian.API.Core
                     result = ApiResult<TResponse>.Failure(error, request.Method);
                 }
 
-                LogResponse(result);
+                LogResponse(request, result);
                 return result;
             }
             catch (OperationCanceledException ex)
@@ -82,7 +82,7 @@ namespace Deucarian.API.Core
                 };
                 ApiResult<TResponse> result =
                         ApiResult<TResponse>.Failure(error, request?.Method ?? HttpMethod.GET);
-                LogResponse(result);
+                LogResponse(request, result);
                 return result;
             }
             catch (Exception ex)
@@ -90,7 +90,7 @@ namespace Deucarian.API.Core
                 ApiError error = _errorParser.Parse(request, transportResponse, ex);
                 ApiResult<TResponse> result =
                         ApiResult<TResponse>.Failure(error, request?.Method ?? HttpMethod.GET);
-                LogResponse(result);
+                LogResponse(request, result);
                 return result;
             }
             finally
@@ -165,7 +165,10 @@ namespace Deucarian.API.Core
 
         private void LogRequest(ApiRequest request, string requestUrl)
         {
-            if (_config == null || _config.LoggingMode != ApiLoggingMode.Verbose)
+            if (request == null ||
+                request.SuppressLogging ||
+                _config == null ||
+                _config.LoggingMode != ApiLoggingMode.Verbose)
             {
                 return;
             }
@@ -173,9 +176,15 @@ namespace Deucarian.API.Core
             ApiLog.Requests.Info(request.Method + " " + requestUrl);
         }
 
-        private void LogResponse<TResponse>(ApiResult<TResponse> result)
+        private void LogResponse<TResponse>(
+            ApiRequest request,
+            ApiResult<TResponse> result)
         {
-            if (result == null || _config == null || _config.LoggingMode == ApiLoggingMode.None)
+            if (request == null ||
+                request.SuppressLogging ||
+                result == null ||
+                _config == null ||
+                _config.LoggingMode == ApiLoggingMode.None)
             {
                 return;
             }

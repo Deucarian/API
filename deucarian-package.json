@@ -18,6 +18,7 @@
     "Deucarian.API.Tests"
   ],
   "requiredDependencies": [
+    "com.deucarian.editor",
     "com.deucarian.logging",
     "com.unity.modules.assetbundle",
     "com.unity.modules.unitywebrequest",

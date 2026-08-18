@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.5 - 2026-08-18
+
+- Added per-request logging suppression for credential and token exchanges so
+  sensitive URLs, response bodies, and transport errors never reach API logs.
+- Declared the canonical Editor dependency required by the package-owned API
+  diagnostics menu.
+
 ## 1.1.4 - 2026-07-17
 
 - Documented the Example Scene sample and aligned the exact Logging dependency for the portfolio release.

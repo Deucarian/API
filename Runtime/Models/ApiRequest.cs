@@ -109,6 +109,13 @@ namespace Deucarian.API.Models
         /// </summary>
         public ApiAssetBundleRequestOptions AssetBundleOptions { get; set; }
 
+        /// <summary>
+        /// Suppresses request, response, and error logging for this call.
+        /// Enable this for credential exchange and token endpoints so neither
+        /// request URLs nor response bodies can reach diagnostic output.
+        /// </summary>
+        public bool SuppressLogging { get; set; }
+
         /// <summary>Optional callback invoked while the underlying UnityWebRequest transfers data.</summary>
         public Action<ApiTransferProgress> TransferProgress { get; set; }
 
