@@ -186,6 +186,317 @@ namespace Deucarian.API.Tests
         }
 
         [Test]
+        public void EnvironmentStages_ExposeConventionalOrder()
+        {
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    ApiEnvironmentStage.Development,
+                    ApiEnvironmentStage.Testing,
+                    ApiEnvironmentStage.Acceptance,
+                    ApiEnvironmentStage.Production
+                },
+                ApiEnvironmentStages.Standard);
+        }
+
+        [Test]
+        public void EnvironmentProfileConfiguration_ClassifiesConfiguredBlankAndPartialProfiles()
+        {
+            ApiEnvironmentProfile configured = CreateEnvironment(
+                "development",
+                "Development",
+                "https://dev.example.com/api");
+            ApiEnvironmentProfile notConfigured = CreateEnvironment(
+                "testing",
+                "Testing",
+                "   ");
+            ApiEnvironmentProfile partial = CreateEnvironment(
+                "acceptance",
+                "Acceptance",
+                "https://acceptance.example.com/api");
+            partial.Clients.Add(new ApiNamedClientDefinition
+            {
+                ClientId = "media",
+                BaseUrl = string.Empty
+            });
+
+            string configuredMessage;
+            string notConfiguredMessage;
+            string partialMessage;
+
+            Assert.AreEqual(
+                ApiEnvironmentProfileConfigurationState.Configured,
+                configured.ClassifyConfiguration(out configuredMessage));
+            Assert.IsNull(configuredMessage);
+            Assert.AreEqual(
+                ApiEnvironmentProfileConfigurationState.NotConfigured,
+                notConfigured.ClassifyConfiguration(out notConfiguredMessage));
+            Assert.IsNull(notConfiguredMessage);
+            Assert.AreEqual(
+                ApiEnvironmentProfileConfigurationState.Invalid,
+                partial.ClassifyConfiguration(out partialMessage));
+            StringAssert.Contains("partially configured", partialMessage);
+        }
+
+        [Test]
+        public void Composition_LegacyConstructorKeepsConfiguredAndUnknownStatusBehavior()
+        {
+            ApiEnvironmentProfile development = CreateEnvironment(
+                "development",
+                "Development",
+                "https://dev.example.com/api");
+            ApiEndpointCatalog catalog = CreateCatalog();
+            catalog.Endpoints.Add(CreateEndpoint("health.get", "primary", "health", HttpMethod.GET));
+
+            ApiComposition composition = new ApiComposition(development, catalog);
+
+            ApiEnvironmentStatus configured = composition.GetEnvironmentStatus("development");
+            ApiEnvironmentStatus unknown = composition.GetEnvironmentStatus("testing");
+
+            Assert.IsTrue(configured.IsResolved);
+            Assert.AreEqual(ApiEnvironmentAvailability.Configured, configured.Availability);
+            Assert.AreEqual(ApiEnvironmentStage.Custom, configured.Stage);
+            Assert.AreEqual("Development", configured.DisplayName);
+            Assert.IsNull(configured.Message);
+            Assert.IsFalse(unknown.IsResolved);
+            Assert.AreEqual(ApiEnvironmentAvailability.Unknown, unknown.Availability);
+            Assert.AreEqual(ApiEnvironmentStage.Custom, unknown.Stage);
+            Assert.AreEqual("testing", unknown.DisplayName);
+            StringAssert.Contains("not registered", unknown.Message);
+        }
+
+        [Test]
+        public void Composition_DistinguishesConfiguredUnconfiguredAndUnknownEnvironments()
+        {
+            ApiEnvironmentProfile development = CreateEnvironment(
+                "development",
+                "Development profile",
+                "https://dev.example.com/api");
+            ApiEnvironmentProfile testing = CreateEnvironment(
+                "testing",
+                "Testing profile",
+                string.Empty);
+            ApiEndpointCatalog catalog = CreateCatalog();
+            catalog.Endpoints.Add(CreateEndpoint("health.get", "primary", "health", HttpMethod.GET));
+            ApiComposition composition = new ApiComposition(
+                new[] { development, testing },
+                catalog,
+                new[]
+                {
+                    Describe("development", ApiEnvironmentStage.Development, "Development"),
+                    Describe("testing", ApiEnvironmentStage.Testing, "Testing")
+                });
+
+            ApiEnvironmentStatus configured = composition.GetEnvironmentStatus("development");
+            ApiEnvironmentStatus unconfigured = composition.GetEnvironmentStatus("testing");
+            ApiEnvironmentStatus unknown = composition.GetEnvironmentStatus("vendor-preview");
+
+            Assert.AreEqual(ApiEnvironmentAvailability.Configured, configured.Availability);
+            Assert.AreEqual(ApiEnvironmentStage.Development, configured.Stage);
+            Assert.AreEqual("Development profile", configured.DisplayName);
+            Assert.AreEqual(ApiEnvironmentAvailability.Unconfigured, unconfigured.Availability);
+            Assert.AreEqual(ApiEnvironmentStage.Testing, unconfigured.Stage);
+            Assert.AreEqual("Testing", unconfigured.DisplayName);
+            StringAssert.Contains("known but not configured", unconfigured.Message);
+            Assert.AreEqual(ApiEnvironmentAvailability.Unknown, unknown.Availability);
+            Assert.AreEqual(ApiEnvironmentStage.Custom, unknown.Stage);
+            Assert.AreEqual("vendor-preview", unknown.DisplayName);
+        }
+
+        [Test]
+        public void Composition_DescriptorAwareOverloadSupportsOnlyUnconfiguredKnownProfiles()
+        {
+            ApiEnvironmentProfile development = CreateEnvironment(
+                "development",
+                "Development profile",
+                string.Empty);
+            ApiEnvironmentProfile testing = CreateEnvironment(
+                "testing",
+                "Testing profile",
+                string.Empty);
+            ApiEnvironmentProfile acceptance = CreateEnvironment(
+                "acceptance",
+                "Acceptance profile",
+                string.Empty);
+            ApiEnvironmentProfile production = CreateEnvironment(
+                "production",
+                "Production profile",
+                string.Empty);
+            ApiEndpointCatalog catalog = CreateCatalog();
+            catalog.Endpoints.Add(CreateEndpoint("health.get", "primary", "health", HttpMethod.GET));
+
+            ApiComposition composition = new ApiComposition(
+                new[] { development, testing, acceptance, production },
+                catalog,
+                new[]
+                {
+                    Describe("development", ApiEnvironmentStage.Development, "Development"),
+                    Describe("testing", ApiEnvironmentStage.Testing, "Testing"),
+                    Describe("acceptance", ApiEnvironmentStage.Acceptance, "Acceptance"),
+                    Describe("production", ApiEnvironmentStage.Production, "Production")
+                });
+
+            Assert.AreEqual(
+                ApiEnvironmentAvailability.Unconfigured,
+                composition.GetEnvironmentStatus("development").Availability);
+            Assert.AreEqual(
+                ApiEnvironmentAvailability.Unconfigured,
+                composition.GetEnvironmentStatus("testing").Availability);
+            Assert.AreEqual(
+                ApiEnvironmentAvailability.Unconfigured,
+                composition.GetEnvironmentStatus("acceptance").Availability);
+            Assert.AreEqual(
+                ApiEnvironmentAvailability.Unconfigured,
+                composition.GetEnvironmentStatus("production").Availability);
+        }
+
+        [Test]
+        public void Composition_LegacyConstructorStillRejectsBlankProfileHosts()
+        {
+            ApiEnvironmentProfile notConfigured = CreateEnvironment(
+                "testing",
+                "Testing",
+                string.Empty);
+            ApiEndpointCatalog catalog = CreateCatalog();
+            catalog.Endpoints.Add(CreateEndpoint("health.get", "primary", "health", HttpMethod.GET));
+
+            ArgumentException exception = Assert.Throws<ArgumentException>(
+                () => new ApiComposition(notConfigured, catalog));
+
+            StringAssert.Contains("absolute HTTP(S) base URL", exception.Message);
+        }
+
+        [Test]
+        public void Composition_RejectsDuplicateKnownEnvironmentDescriptors()
+        {
+            ApiEnvironmentProfile development = CreateEnvironment(
+                "development",
+                "Development",
+                "https://dev.example.com/api");
+            ApiEndpointCatalog catalog = CreateCatalog();
+            catalog.Endpoints.Add(CreateEndpoint("health.get", "primary", "health", HttpMethod.GET));
+
+            ArgumentException exception = Assert.Throws<ArgumentException>(
+                () => new ApiComposition(
+                    new[] { development },
+                    catalog,
+                    new[]
+                    {
+                        Describe("testing", ApiEnvironmentStage.Testing, "Testing A"),
+                        Describe("testing", ApiEnvironmentStage.Testing, "Testing B")
+                    }));
+
+            StringAssert.Contains("Duplicate known environment ID", exception.Message);
+        }
+
+        [Test]
+        public void Composition_KnownUnconfiguredEnvironmentCannotResolveClientOrEndpoint()
+        {
+            ApiEnvironmentProfile development = CreateEnvironment(
+                "development",
+                "Development",
+                "https://dev.example.com/api");
+            ApiEnvironmentProfile testingProfile = CreateEnvironment(
+                "testing",
+                "Testing profile",
+                string.Empty);
+            ApiEndpointCatalog catalog = CreateCatalog();
+            catalog.Endpoints.Add(CreateEndpoint("health.get", "primary", "health", HttpMethod.GET));
+            ApiComposition composition = new ApiComposition(
+                new[] { development, testingProfile },
+                catalog,
+                new[] { Describe("testing", ApiEnvironmentStage.Testing, "Testing") });
+            ApiEnvironmentId testing = new ApiEnvironmentId("testing");
+
+            ApiResolvedClient client;
+            string clientMessage;
+            bool clientResolved = composition.TryResolveClient(
+                testing,
+                new ApiClientId("primary"),
+                out client,
+                out clientMessage);
+            ApiResolvedEndpoint endpoint;
+            string endpointMessage;
+            bool endpointResolved = composition.TryResolveEndpoint(
+                testing,
+                new ApiEndpointId("health.get"),
+                out endpoint,
+                out endpointMessage);
+
+            Assert.IsFalse(clientResolved);
+            Assert.IsNull(client);
+            StringAssert.Contains("known but not configured", clientMessage);
+            Assert.IsFalse(endpointResolved);
+            Assert.IsNull(endpoint);
+            StringAssert.Contains("known but not configured", endpointMessage);
+            InvalidOperationException exception = Assert.Throws<InvalidOperationException>(
+                () => composition.ResolveEndpoint(testing, new ApiEndpointId("health.get")));
+            StringAssert.Contains("known but not configured", exception.Message);
+        }
+
+        [Test]
+        public void Composition_RejectsMalformedConfiguredProfileEvenWhenEnvironmentIsKnown()
+        {
+            ApiEnvironmentProfile malformed = CreateEnvironment(
+                "testing",
+                "Testing",
+                "not-an-absolute-url");
+            ApiEndpointCatalog catalog = CreateCatalog();
+            catalog.Endpoints.Add(CreateEndpoint("health.get", "primary", "health", HttpMethod.GET));
+
+            ArgumentException exception = Assert.Throws<ArgumentException>(
+                () => new ApiComposition(
+                    new[] { malformed },
+                    catalog,
+                    new[] { Describe("testing", ApiEnvironmentStage.Testing, "Testing") }));
+
+            StringAssert.Contains("absolute HTTP(S) base URL", exception.Message);
+        }
+
+        [Test]
+        public void Composition_ConfiguredKnownEnvironmentsResolveCatalogAgainstDifferentHosts()
+        {
+            ApiEnvironmentProfile development = CreateEnvironment(
+                "development",
+                "Development",
+                "https://dev.example.com/api/v2");
+            ApiEnvironmentProfile production = CreateEnvironment(
+                "production",
+                "Production",
+                "https://api.example.com/api/v2");
+            ApiEndpointCatalog catalog = CreateCatalog();
+            catalog.Endpoints.Add(CreateEndpoint("health.get", "primary", "health", HttpMethod.GET));
+            ApiComposition composition = new ApiComposition(
+                new[] { development, production },
+                catalog,
+                new[]
+                {
+                    Describe("development", ApiEnvironmentStage.Development, "Development"),
+                    Describe("production", ApiEnvironmentStage.Production, "Production")
+                });
+
+            ApiResolvedEndpoint developmentEndpoint = composition.ResolveEndpoint(
+                new ApiEnvironmentId("development"),
+                new ApiEndpointId("health.get"));
+            ApiResolvedEndpoint productionEndpoint = composition.ResolveEndpoint(
+                new ApiEnvironmentId("production"),
+                new ApiEndpointId("health.get"));
+
+            Assert.AreEqual(
+                "https://dev.example.com/api/v2/health",
+                developmentEndpoint.Endpoint.Path);
+            Assert.AreEqual(
+                "https://api.example.com/api/v2/health",
+                productionEndpoint.Endpoint.Path);
+            Assert.AreEqual(
+                ApiEnvironmentStage.Development,
+                composition.GetEnvironmentStatus("development").Stage);
+            Assert.AreEqual(
+                ApiEnvironmentStage.Production,
+                composition.GetEnvironmentStatus("production").Stage);
+        }
+
+        [Test]
         public void RequestPolicyDefinition_InheritsIndividualValuesAndBoundsBackoff()
         {
             ApiRequestPolicy fallback = new ApiRequestPolicy(40, 3, 100, 2f, 500, 0, 0f);
@@ -271,6 +582,17 @@ namespace Deucarian.API.Tests
         private static ApiKeyValuePair Pair(string key, string value)
         {
             return new ApiKeyValuePair { Key = key, Value = value };
+        }
+
+        private static ApiEnvironmentDescriptor Describe(
+            string id,
+            ApiEnvironmentStage stage,
+            string displayName)
+        {
+            return new ApiEnvironmentDescriptor(
+                new ApiEnvironmentId(id),
+                stage,
+                displayName);
         }
 
         private T CreateAsset<T>() where T : ScriptableObject

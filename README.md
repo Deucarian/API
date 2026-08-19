@@ -254,6 +254,13 @@ Every environment uses the same client IDs but supplies its own base URLs. A cat
 entry references one client ID and provides a relative route template such as
 `projects/{id}`.
 
+Integration packages can declare a standard ordered environment set with
+`ApiEnvironmentDescriptor` without supplying any hosts. With the descriptor-aware
+`ApiComposition` overload, a profile whose client hosts are all blank is reported as
+`Unconfigured` and cannot resolve traffic. A partially filled or malformed profile
+remains invalid. Existing constructors retain their strict configured-profile
+requirement.
+
 ```csharp
 ApiComposition composition = new ApiComposition(
     new[] { developmentEnvironment, productionEnvironment },
@@ -683,7 +690,7 @@ decoders that cannot be handled cleanly with `string` or `byte[]`.
 
 ## Versioning
 
-Current package version: `1.2.0`.
+Current package version: `1.3.0`.
 
 Branch strategy:
 

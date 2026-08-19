@@ -5,6 +5,22 @@ using UnityEngine;
 
 namespace Deucarian.API.Configuration
 {
+    /// <summary>
+    /// Describes whether an environment profile is ready to resolve clients,
+    /// intentionally awaiting host configuration, or malformed.
+    /// </summary>
+    public enum ApiEnvironmentProfileConfigurationState
+    {
+        /// <summary>The profile contains invalid or partially configured data.</summary>
+        Invalid = 0,
+
+        /// <summary>The profile has valid IDs and policies, but every client host is blank.</summary>
+        NotConfigured = 1,
+
+        /// <summary>Every named client has a valid absolute HTTP(S) host.</summary>
+        Configured = 2
+    }
+
     /// <summary>Environment-specific base URL and defaults for one named API client.</summary>
     [Serializable]
     public sealed class ApiNamedClientDefinition
@@ -133,6 +149,105 @@ namespace Deucarian.API.Configuration
 
             client = null;
             return false;
+        }
+
+        /// <summary>
+        /// Classifies a profile without treating an intentionally blank set of
+        /// client hosts as malformed. A mixture of blank and populated hosts is
+        /// invalid so partially configured profiles can never resolve traffic.
+        /// </summary>
+        public ApiEnvironmentProfileConfigurationState ClassifyConfiguration(
+            out string message)
+        {
+            ApiEnvironmentId parsedEnvironmentId;
+            if (!ApiEnvironmentId.TryParse(environmentId, out parsedEnvironmentId))
+            {
+                message = "Environment profile has an invalid stable environment ID: '"
+                          + (environmentId ?? string.Empty) + "'.";
+                return ApiEnvironmentProfileConfigurationState.Invalid;
+            }
+
+            if (defaultRequestPolicy != null && !defaultRequestPolicy.IsValid(out message))
+            {
+                message = "Environment '" + parsedEnvironmentId
+                          + "' has an invalid default policy: " + message;
+                return ApiEnvironmentProfileConfigurationState.Invalid;
+            }
+
+            if (clients == null || clients.Count == 0)
+            {
+                message = "Environment '" + parsedEnvironmentId
+                          + "' must define at least one named client.";
+                return ApiEnvironmentProfileConfigurationState.Invalid;
+            }
+
+            bool hasBlankHost = false;
+            bool hasConfiguredHost = false;
+            HashSet<ApiClientId> ids = new HashSet<ApiClientId>();
+            foreach (ApiNamedClientDefinition client in clients)
+            {
+                if (client == null)
+                {
+                    message = "Environment '" + parsedEnvironmentId
+                              + "' contains a null client entry.";
+                    return ApiEnvironmentProfileConfigurationState.Invalid;
+                }
+
+                ApiClientId parsedClientId;
+                if (!ApiClientId.TryParse(client.ClientId, out parsedClientId))
+                {
+                    message = "Environment '" + parsedEnvironmentId
+                              + "' contains an invalid client. Named client has an invalid stable client ID: '"
+                              + (client.ClientId ?? string.Empty) + "'.";
+                    return ApiEnvironmentProfileConfigurationState.Invalid;
+                }
+
+                if (!ids.Add(parsedClientId))
+                {
+                    message = "Environment '" + parsedEnvironmentId
+                              + "' contains duplicate client ID '" + parsedClientId + "'.";
+                    return ApiEnvironmentProfileConfigurationState.Invalid;
+                }
+
+                string policyMessage;
+                if (client.RequestPolicy != null
+                    && !client.RequestPolicy.IsValid(out policyMessage))
+                {
+                    message = "Environment '" + parsedEnvironmentId
+                              + "' contains an invalid client. Named client '"
+                              + parsedClientId + "' has an invalid request policy: "
+                              + policyMessage;
+                    return ApiEnvironmentProfileConfigurationState.Invalid;
+                }
+
+                if (string.IsNullOrWhiteSpace(client.BaseUrl))
+                {
+                    hasBlankHost = true;
+                    continue;
+                }
+
+                string clientMessage;
+                if (!client.IsValid(out clientMessage))
+                {
+                    message = "Environment '" + parsedEnvironmentId
+                              + "' contains an invalid client. " + clientMessage;
+                    return ApiEnvironmentProfileConfigurationState.Invalid;
+                }
+
+                hasConfiguredHost = true;
+            }
+
+            if (hasBlankHost && hasConfiguredHost)
+            {
+                message = "Environment '" + parsedEnvironmentId
+                          + "' is partially configured; every named client must either have a valid host or all hosts must be blank.";
+                return ApiEnvironmentProfileConfigurationState.Invalid;
+            }
+
+            message = null;
+            return hasBlankHost
+                ? ApiEnvironmentProfileConfigurationState.NotConfigured
+                : ApiEnvironmentProfileConfigurationState.Configured;
         }
 
         /// <summary>Validates stable IDs, client uniqueness, URLs, and policy data.</summary>
