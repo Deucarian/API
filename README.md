@@ -710,7 +710,7 @@ decoders that cannot be handled cleanly with `string` or `byte[]`.
 
 ## Versioning
 
-Current package version: `1.4.0`.
+Current package version: `1.4.1`.
 
 Branch strategy:
 
