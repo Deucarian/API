@@ -1,6 +1,6 @@
 {
   "name": "com.deucarian.api",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "displayName": "Deucarian API",
   "description": "A reusable Unity API foundation with environment profiles, named clients, endpoint catalogs, and JSON, text, byte, texture, and AssetBundle transport.",
   "license": "MIT",
