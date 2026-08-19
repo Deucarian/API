@@ -192,7 +192,7 @@ namespace Deucarian.API.Editor
                     return;
                 }
 
-                bool canEdit = projectOwned && IsProjectOwned(environment);
+                bool canEdit = CanEditEnvironment(profile, environment);
                 for (int index = 0; index < clients.Count; index++)
                 {
                     ApiNamedClientDefinition client = clients[index];
@@ -294,17 +294,32 @@ namespace Deucarian.API.Editor
                     EditorGUILayout.LabelField(
                         environment.DisplayName ?? environment.name,
                         EditorStyles.boldLabel);
-                    var environmentObject = new SerializedObject(environment);
-                    environmentObject.Update();
-                    EditorGUILayout.PropertyField(
-                        environmentObject.FindProperty("defaultRequestPolicy"),
-                        new GUIContent("Environment Policy"),
-                        true);
-                    EditorGUILayout.PropertyField(
-                        environmentObject.FindProperty("clients"),
-                        new GUIContent("Named Clients"),
-                        true);
-                    environmentObject.ApplyModifiedProperties();
+                    bool environmentOwned =
+                        CanEditEnvironment(profile, environment);
+                    using (new EditorGUI.DisabledScope(!environmentOwned))
+                    {
+                        var environmentObject =
+                            new SerializedObject(environment);
+                        environmentObject.Update();
+                        EditorGUILayout.PropertyField(
+                            environmentObject.FindProperty(
+                                "defaultRequestPolicy"),
+                            new GUIContent("Environment Policy"),
+                            true);
+                        EditorGUILayout.PropertyField(
+                            environmentObject.FindProperty("clients"),
+                            new GUIContent("Named Clients"),
+                            true);
+                        environmentObject.ApplyModifiedProperties();
+                    }
+
+                    if (!environmentOwned)
+                    {
+                        EditorGUILayout.HelpBox(
+                            "This referenced environment is package-managed " +
+                            "or transient and remains read-only.",
+                            MessageType.Info);
+                    }
                 }
             }
         }
@@ -350,6 +365,13 @@ namespace Deucarian.API.Editor
             return string.IsNullOrWhiteSpace(clientId)
                 ? "Client Base URL"
                 : clientId + " Base URL";
+        }
+
+        internal static bool CanEditEnvironment(
+            ApiConnectionProfile profile,
+            ApiEnvironmentProfile environment)
+        {
+            return IsProjectOwned(profile) && IsProjectOwned(environment);
         }
 
         private static void DrawState(
