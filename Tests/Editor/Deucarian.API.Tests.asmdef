@@ -2,7 +2,8 @@
   "name": "Deucarian.API.Tests",
   "rootNamespace": "Deucarian.API.Tests",
   "references": [
-    "Deucarian.API"
+    "Deucarian.API",
+    "Deucarian.API.Editor"
   ],
   "includePlatforms": [
     "Editor"
