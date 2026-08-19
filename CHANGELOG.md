@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.0 - 2026-08-19
+
+- Added the project-facing `ApiConnectionProfile` aggregate with serializable
+  known-environment metadata and composition helpers.
+- Added one guided Connection Profile creation workflow that produces four blank
+  conventional environment slots without inventing hosts or a catalog.
+- Added a focused connection-profile inspector for catalog ownership, environment
+  status, Base URL editing, and advanced manual identifiers and policies.
+- Moved raw Client Config, Environment Profile, Endpoint Catalog, and Endpoint
+  Definition creation commands under the Advanced/Building Blocks API submenu
+  without changing their public types or serialized asset compatibility.
+
 ## 1.3.0 - 2026-08-19
 
 - Added vendor-neutral Development, Testing, Acceptance, and Production stage
