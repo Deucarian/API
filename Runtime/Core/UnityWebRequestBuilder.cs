@@ -222,7 +222,11 @@ namespace Deucarian.API.Core
 
         private void ApplyTimeout(UnityWebRequest webRequest, ApiRequest request)
         {
-            int timeout = request.TimeoutSeconds.HasValue ? request.TimeoutSeconds.Value : _config.TimeoutSeconds;
+            int timeout = request.TimeoutSeconds.HasValue
+                                  ? request.TimeoutSeconds.Value
+                                  : request.RequestPolicy != null
+                                          ? request.RequestPolicy.TimeoutSeconds
+                                          : _config.TimeoutSeconds;
             if (timeout > 0)
             {
                 webRequest.timeout = timeout;
