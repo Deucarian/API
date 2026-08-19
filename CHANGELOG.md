@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.2.0 - 2026-08-19
+
+- Added serializable stable IDs for environments, named clients, endpoint catalogs,
+  and endpoints.
+- Added vendor-neutral environment profiles with named client/base-URL resolution.
+- Added endpoint catalogs with stable endpoint IDs, relative route templates, HTTP
+  metadata, headers, query defaults, and policy overlays.
+- Added explicit `ApiComposition`, resolved client/endpoint models, and sanitized
+  environment status for connection UI without global environment state.
+- Added layered request policy values for timeout, retry/backoff, and rate-limit hints;
+  the existing transport now applies a resolved policy timeout without changing legacy
+  timeout precedence.
+- Kept token acquisition, refresh, expiry, and session lifecycle outside this package
+  behind the existing `IApiAuthProvider` boundary.
+
 ## 1.1.6 - 2026-08-18
 
 - Routed the package-owned API diagnostics menu through the shared

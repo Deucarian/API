@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Deucarian.API.Configuration;
 using UnityEngine.Networking;
 
 namespace Deucarian.API.Models
@@ -31,6 +32,8 @@ namespace Deucarian.API.Models
         /// <param name="defaultHeaders">Optional headers copied to requests created from this endpoint.</param>
         /// <param name="defaultQueryParameters">Optional query parameters copied to requests created from this endpoint.</param>
         /// <param name="responseFormat">Optional response format hint. Auto infers from the generic response type.</param>
+        /// <param name="requestPolicy">Optional resolved request policy metadata.</param>
+        /// <param name="suppressLogging">True when requests created from this endpoint must not reach API logs.</param>
         public ApiEndpoint(string path,
                            HttpMethod method = HttpMethod.GET,
                            ApiAuthenticationRequirement authentication =
@@ -38,7 +41,9 @@ namespace Deucarian.API.Models
                            int? timeoutSeconds = null,
                            IEnumerable<KeyValuePair<string, string>> defaultHeaders = null,
                            IEnumerable<KeyValuePair<string, string>> defaultQueryParameters = null,
-                           ApiResponseFormat responseFormat = ApiResponseFormat.Auto)
+                           ApiResponseFormat responseFormat = ApiResponseFormat.Auto,
+                           ApiRequestPolicy requestPolicy = null,
+                           bool suppressLogging = false)
         {
             Path = path;
             Method = method;
@@ -47,6 +52,8 @@ namespace Deucarian.API.Models
             DefaultHeaders = Copy(defaultHeaders, StringComparer.OrdinalIgnoreCase);
             DefaultQueryParameters = Copy(defaultQueryParameters, StringComparer.Ordinal);
             ResponseFormat = responseFormat;
+            RequestPolicy = requestPolicy;
+            SuppressLogging = suppressLogging;
         }
 
         /// <summary>Relative path or absolute URL. Supports placeholders such as <c>projects/{id}</c>.</summary>
@@ -70,6 +77,12 @@ namespace Deucarian.API.Models
         /// <summary>Query parameters copied onto requests created from this endpoint.</summary>
         public IReadOnlyDictionary<string, string> DefaultQueryParameters { get; }
 
+        /// <summary>Optional resolved environment/client/endpoint policy metadata.</summary>
+        public ApiRequestPolicy RequestPolicy { get; }
+
+        /// <summary>True when requests created from this endpoint must not reach API logs.</summary>
+        public bool SuppressLogging { get; }
+
         /// <summary>
         /// Creates a request from this endpoint. Throws if the path still contains unresolved placeholders.
         /// </summary>
@@ -83,7 +96,9 @@ namespace Deucarian.API.Models
             {
                     Body = body,
                     TimeoutSeconds = TimeoutSeconds,
-                    ResponseFormat = ResponseFormat
+                    ResponseFormat = ResponseFormat,
+                    RequestPolicy = RequestPolicy,
+                    SuppressLogging = SuppressLogging
             };
 
             CopyInto(DefaultHeaders, request.Headers);
@@ -153,7 +168,9 @@ namespace Deucarian.API.Models
                                    TimeoutSeconds,
                                    headers,
                                    DefaultQueryParameters,
-                                   ResponseFormat);
+                                   ResponseFormat,
+                                   RequestPolicy,
+                                   SuppressLogging);
         }
 
         /// <summary>Returns a copy with an extra default query parameter.</summary>
@@ -171,7 +188,9 @@ namespace Deucarian.API.Models
                                    TimeoutSeconds,
                                    DefaultHeaders,
                                    query,
-                                   ResponseFormat);
+                                   ResponseFormat,
+                                   RequestPolicy,
+                                   SuppressLogging);
         }
 
         private ApiEndpoint WithPath(string path)
@@ -182,7 +201,9 @@ namespace Deucarian.API.Models
                                    TimeoutSeconds,
                                    DefaultHeaders,
                                    DefaultQueryParameters,
-                                   ResponseFormat);
+                                   ResponseFormat,
+                                   RequestPolicy,
+                                   SuppressLogging);
         }
 
         internal static bool HasUnresolvedPathParameters(string path)

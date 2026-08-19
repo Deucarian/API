@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Deucarian.API.Configuration;
 
 namespace Deucarian.API.Models
 {
@@ -108,6 +109,12 @@ namespace Deucarian.API.Models
         /// <see cref="ApiResponseFormat.AssetBundle"/>.
         /// </summary>
         public ApiAssetBundleRequestOptions AssetBundleOptions { get; set; }
+
+        /// <summary>
+        /// Resolved environment/client/endpoint policy metadata. The built-in transport applies its
+        /// timeout while policy-aware callers and decorators may use its retry and rate-limit hints.
+        /// </summary>
+        public ApiRequestPolicy RequestPolicy { get; set; }
 
         /// <summary>
         /// Suppresses request, response, and error logging for this call.

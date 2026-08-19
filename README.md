@@ -17,7 +17,7 @@ Package ID: `com.deucarian.api`
 
 ## When To Use This
 
-Use this package when a Unity project needs reusable HTTP/API transport, request building, response parsing, JSON/text/byte/texture responses, ScriptableObject endpoint configuration, authentication providers, cancellation-aware calls, and Deucarian Logging-backed API diagnostics.
+Use this package when a Unity project needs reusable HTTP/API transport, request building, response parsing, JSON/text/byte/texture responses, explicit environment selection, named clients, ScriptableObject endpoint catalogs, authentication providers, cancellation-aware calls, and Deucarian Logging-backed API diagnostics.
 
 Do not use this package to own session lifecycle, object-loading source resolution, package installation, gameplay runtime behavior, or Unity object lifetime cleanup. Those capabilities belong to their owning Deucarian packages.
 
@@ -28,6 +28,10 @@ Do not use this package to own session lifecycle, object-loading source resoluti
   explicit development-only option.
 - Central `ApiClientConfig` ScriptableObject for base URL, headers, timeout,
   authentication, JSON settings, certificate handling, and logging.
+- Stable serializable environment, client, catalog, and endpoint identifiers.
+- `ApiEnvironmentProfile` assets that map named clients to environment-specific base URLs.
+- `ApiEndpointCatalog` assets that keep stable route IDs and HTTP metadata independent of hosts.
+- `ApiComposition` for explicit environment resolution without active global state.
 - Raw string endpoint workflow for route constants.
 - Lightweight `ApiEndpoint` workflow for method/auth/timeout/header/query
   defaults in code.
@@ -105,6 +109,12 @@ The main runtime APIs are:
 - `IApiClient`: injectable client used by application services.
 - `ApiClientFactory`: creates the default client pipeline from `ApiClientConfig`.
 - `ApiClientConfig`: ScriptableObject config for base URL, default headers, timeout, auth, JSON settings, certificate handling, response format, and logging.
+- `ApiEnvironmentId`, `ApiClientId`, `ApiCatalogId`, and `ApiEndpointId`: stable serializable identifiers used across package boundaries.
+- `ApiEnvironmentProfile`: environment-specific named clients, base URLs, headers, and policy defaults.
+- `ApiEndpointCatalog`: stable endpoint IDs, named-client references, relative route templates, methods, auth requirements, response formats, headers, query defaults, policy overlays, and sensitive-call logging suppression.
+- `ApiComposition`: resolves an explicit environment and endpoint ID into the existing `ApiEndpoint`/`ApiRequest` pipeline.
+- `ApiEnvironmentStatus`: sanitized resolution state for UI that intentionally omits hosts and headers.
+- `ApiRequestPolicy` and `ApiRequestPolicyDefinition`: resolved policy values and serializable layered overrides.
 - `IApiAuthProvider` and `ApiAuthProviderAsset`: code and ScriptableObject token providers.
 - `ApiEndpoint`: code-defined endpoint with method, auth, timeout, headers, query parameters, path parameters, and response format.
 - `ApiEndpointDefinition`: ScriptableObject endpoint asset that converts to `ApiEndpoint`.
@@ -226,6 +236,73 @@ a non-JSON DTO-like response format. `Auto` maps DTOs to JSON, `string` to text,
 to DTO-like calls whose request or endpoint still uses `Auto`, so prefer
 per-request or per-endpoint `ResponseFormat` overrides for files, text endpoints,
 and images.
+
+## Environment And Endpoint Composition
+
+Environment profiles own concrete hosts. Endpoint catalogs own logical routes and
+request metadata. This keeps a viewer's persisted selection small and safe: store an
+`ApiEnvironmentId`, then resolve it when composing the API service. Do not copy base
+URLs into viewer connection profiles and do not use a global active-environment value.
+
+Create assets from:
+
+- `Assets > Create > Deucarian > API > Environment Profile`
+- `Assets > Create > Deucarian > API > Endpoint Catalog`
+
+An environment profile can define clients such as `primary`, `media`, or `telemetry`.
+Every environment uses the same client IDs but supplies its own base URLs. A catalog
+entry references one client ID and provides a relative route template such as
+`projects/{id}`.
+
+```csharp
+ApiComposition composition = new ApiComposition(
+    new[] { developmentEnvironment, productionEnvironment },
+    buildingApiCatalog);
+
+ApiResolvedEndpoint resolved = composition.ResolveEndpoint(
+    new ApiEnvironmentId("development"),
+    new ApiEndpointId("projects.get"));
+
+ApiEndpoint endpoint = resolved.Endpoint.WithPathParameter("id", projectId);
+ApiResult<ProjectDto> result = await apiClient.SendAsync<ProjectDto>(
+    endpoint,
+    cancellationToken);
+```
+
+The resolved endpoint uses an absolute URL, so it travels through the existing
+`IApiClient` pipeline without changing old `ApiClientConfig`, raw-string, or
+`ApiEndpoint` workflows. Named-client headers are applied first and endpoint headers
+override them.
+
+For connection UI, use the sanitized status object:
+
+```csharp
+ApiEnvironmentStatus status = composition.GetEnvironmentStatus(selectedEnvironmentId);
+environmentLabel.text = status.IsResolved ? status.DisplayName : "Environment unavailable";
+```
+
+`ApiEnvironmentStatus` deliberately excludes base URLs and headers. A viewer or
+integration package may serialize `ApiEnvironmentId` directly in its own
+ScriptableObject; API never stores or changes an active selection globally.
+
+### Request Policies
+
+Policy definitions layer in this order:
+
+1. Package-safe defaults.
+2. Environment defaults.
+3. Named-client overrides.
+4. Endpoint overrides.
+
+Values cover timeout, maximum retry attempts, exponential backoff, and advisory
+rate-limit window hints. The built-in UnityWebRequest transport applies the resolved
+timeout. Retry/backoff and rate-limit values are metadata for policy-aware service
+decorators or schedulers; API does not silently retry requests, which preserves
+existing behavior and avoids replaying non-idempotent operations.
+
+Authentication is orthogonal to environment composition. Catalog entries select an
+existing `ApiAuthenticationRequirement`, while an external `IApiAuthProvider` supplies
+tokens. Environment assets and endpoint catalogs must never store credentials.
 
 ## Authentication
 
@@ -606,7 +683,7 @@ decoders that cannot be handled cleanly with `string` or `byte[]`.
 
 ## Versioning
 
-Current package version: `1.1.6`.
+Current package version: `1.2.0`.
 
 Branch strategy:
 
@@ -732,6 +809,11 @@ ApiResult<Texture2D> texture = await apiClient.GetAsync<Texture2D>(ImageEndpoint
 - Built-in response handling covers JSON DTOs, `string`, `byte[]`, and `Texture2D`.
 - Audio, video, PDF, CSV, archive, and other custom formats should be downloaded as `byte[]` or `string` and decoded by application code.
 - There is no built-in response-handler registry.
+- The built-in transport applies policy timeouts but does not automatically execute
+  retries or rate limiting. Use the resolved policy values in an explicit service
+  decorator so unsafe methods are never replayed accidentally.
+- Environment profiles and endpoint catalogs are configuration, not a global
+  environment-selection service.
 - `ApiServices` remains for legacy and simple facade use, but new services should depend on `IApiClient`.
 - Certificate bypass is intended only for explicit development scenarios; keep production configs on `DefaultValidation`.
 
@@ -823,6 +905,10 @@ public sealed class CreateProjectRequest
 - Set explicit `Accept`/`Content-Type` headers only when an API requires them.
 - Keep tokens in an `IApiAuthProvider`; do not pass tokens through every call.
 - Prefer relative paths plus `ApiClientConfig.BaseUrl`.
+- For multi-environment products, persist only `ApiEnvironmentId` and resolve routes
+  through `ApiComposition`.
+- Keep concrete hosts in environment profiles and stable relative routes in endpoint catalogs.
+- Keep credentials out of profiles and catalogs; provide them through `IApiAuthProvider`.
 - Keep certificate handling on `DefaultValidation` for production.
 - Pass `CancellationToken` from MonoBehaviour lifetime, UI flow, or service flow.
 
