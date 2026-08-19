@@ -210,11 +210,11 @@ namespace Deucarian.API.Tests
                 "testing",
                 "Testing",
                 "   ");
-            ApiEnvironmentProfile partial = CreateEnvironment(
+            ApiEnvironmentProfile partiallyConfigured = CreateEnvironment(
                 "acceptance",
                 "Acceptance",
                 "https://acceptance.example.com/api");
-            partial.Clients.Add(new ApiNamedClientDefinition
+            partiallyConfigured.Clients.Add(new ApiNamedClientDefinition
             {
                 ClientId = "media",
                 BaseUrl = string.Empty
@@ -234,7 +234,7 @@ namespace Deucarian.API.Tests
             Assert.IsNull(notConfiguredMessage);
             Assert.AreEqual(
                 ApiEnvironmentProfileConfigurationState.Invalid,
-                partial.ClassifyConfiguration(out partialMessage));
+                partiallyConfigured.ClassifyConfiguration(out partialMessage));
             StringAssert.Contains("partially configured", partialMessage);
         }
 
