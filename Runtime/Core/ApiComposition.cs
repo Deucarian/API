@@ -5,17 +5,32 @@ using Deucarian.API.Models;
 
 namespace Deucarian.API.Core
 {
+    /// <summary>Sanitized availability of a requested API environment.</summary>
+    public enum ApiEnvironmentAvailability
+    {
+        /// <summary>The identifier is not registered or declared as known.</summary>
+        Unknown = 0,
+
+        /// <summary>The identifier is known but has no configured environment profile.</summary>
+        Unconfigured = 1,
+
+        /// <summary>The identifier has a validated environment profile.</summary>
+        Configured = 2
+    }
+
     /// <summary>Sanitized environment resolution state suitable for status UI.</summary>
     public sealed class ApiEnvironmentStatus
     {
         internal ApiEnvironmentStatus(ApiEnvironmentId environmentId,
                                       string displayName,
-                                      bool isResolved,
+                                      ApiEnvironmentStage stage,
+                                      ApiEnvironmentAvailability availability,
                                       string message)
         {
             EnvironmentId = environmentId;
             DisplayName = displayName ?? string.Empty;
-            IsResolved = isResolved;
+            Stage = stage;
+            Availability = availability;
             Message = message;
         }
 
@@ -25,8 +40,15 @@ namespace Deucarian.API.Core
         /// <summary>Safe display label; empty when the supplied identifier was invalid.</summary>
         public string DisplayName { get; }
 
-        /// <summary>True when the environment exists in the composition.</summary>
-        public bool IsResolved { get; }
+        /// <summary>Vendor-neutral lifecycle stage, or Custom when unknown.</summary>
+        public ApiEnvironmentStage Stage { get; }
+
+        /// <summary>Whether the environment is configured, unconfigured, or unknown.</summary>
+        public ApiEnvironmentAvailability Availability { get; }
+
+        /// <summary>True only when the environment has a validated profile.</summary>
+        public bool IsResolved =>
+            Availability == ApiEnvironmentAvailability.Configured;
 
         /// <summary>Safe diagnostic message for unresolved state, otherwise null.</summary>
         public string Message { get; }
@@ -117,18 +139,45 @@ namespace Deucarian.API.Core
     {
         private readonly Dictionary<ApiEnvironmentId, ApiEnvironmentProfile> environments =
                 new Dictionary<ApiEnvironmentId, ApiEnvironmentProfile>();
+        private readonly Dictionary<ApiEnvironmentId, ApiEnvironmentDescriptor> knownEnvironments =
+                new Dictionary<ApiEnvironmentId, ApiEnvironmentDescriptor>();
         private readonly ApiEndpointCatalog endpointCatalog;
         private readonly ApiCatalogId catalogId;
 
         /// <summary>Creates a composition from one environment and one endpoint catalog.</summary>
         public ApiComposition(ApiEnvironmentProfile environment, ApiEndpointCatalog endpointCatalog)
-            : this(new[] { environment }, endpointCatalog)
+            : this(new[] { environment }, endpointCatalog, null, false)
         {
         }
 
         /// <summary>Creates a composition with explicit environment choices and one route catalog.</summary>
         public ApiComposition(IEnumerable<ApiEnvironmentProfile> environmentProfiles,
                               ApiEndpointCatalog endpointCatalog)
+            : this(environmentProfiles, endpointCatalog, null, false)
+        {
+        }
+
+        /// <summary>
+        /// Creates a composition with configured profiles, one route catalog,
+        /// and optional safe descriptors for known-but-unconfigured environments.
+        /// </summary>
+        public ApiComposition(
+            IEnumerable<ApiEnvironmentProfile> environmentProfiles,
+            ApiEndpointCatalog endpointCatalog,
+            IEnumerable<ApiEnvironmentDescriptor> knownEnvironmentDescriptors)
+            : this(
+                environmentProfiles,
+                endpointCatalog,
+                knownEnvironmentDescriptors,
+                true)
+        {
+        }
+
+        private ApiComposition(
+            IEnumerable<ApiEnvironmentProfile> environmentProfiles,
+            ApiEndpointCatalog endpointCatalog,
+            IEnumerable<ApiEnvironmentDescriptor> knownEnvironmentDescriptors,
+            bool allowUnconfiguredProfiles)
         {
             this.endpointCatalog = endpointCatalog ?? throw new ArgumentNullException(nameof(endpointCatalog));
 
@@ -141,11 +190,36 @@ namespace Deucarian.API.Core
             ApiCatalogId resolvedCatalogId;
             endpointCatalog.TryGetId(out resolvedCatalogId);
             catalogId = resolvedCatalogId;
+            if (knownEnvironmentDescriptors != null)
+            {
+                foreach (ApiEnvironmentDescriptor descriptor in knownEnvironmentDescriptors)
+                {
+                    if (descriptor == null)
+                    {
+                        throw new ArgumentException(
+                            "Known environment collection cannot contain null descriptors.",
+                            nameof(knownEnvironmentDescriptors));
+                    }
+
+                    if (knownEnvironments.ContainsKey(descriptor.EnvironmentId))
+                    {
+                        throw new ArgumentException(
+                            "Duplicate known environment ID '" +
+                            descriptor.EnvironmentId + "'.",
+                            nameof(knownEnvironmentDescriptors));
+                    }
+
+                    knownEnvironments.Add(descriptor.EnvironmentId, descriptor);
+                }
+            }
+
             if (environmentProfiles == null)
             {
                 throw new ArgumentNullException(nameof(environmentProfiles));
             }
 
+            HashSet<ApiEnvironmentId> suppliedEnvironmentIds =
+                new HashSet<ApiEnvironmentId>();
             foreach (ApiEnvironmentProfile environment in environmentProfiles)
             {
                 if (environment == null)
@@ -154,26 +228,59 @@ namespace Deucarian.API.Core
                                                 nameof(environmentProfiles));
                 }
 
-                if (!environment.IsValid(out validationMessage))
+                ApiEnvironmentProfileConfigurationState configurationState =
+                    ApiEnvironmentProfileConfigurationState.Configured;
+                if (allowUnconfiguredProfiles)
+                {
+                    configurationState =
+                        environment.ClassifyConfiguration(out validationMessage);
+                    if (configurationState ==
+                        ApiEnvironmentProfileConfigurationState.Invalid)
+                    {
+                        throw new ArgumentException(
+                            validationMessage,
+                            nameof(environmentProfiles));
+                    }
+                }
+                else if (!environment.IsValid(out validationMessage))
                 {
                     throw new ArgumentException(validationMessage, nameof(environmentProfiles));
                 }
 
                 ApiEnvironmentId environmentId;
                 environment.TryGetId(out environmentId);
-                if (environments.ContainsKey(environmentId))
+                if (!suppliedEnvironmentIds.Add(environmentId))
                 {
                     throw new ArgumentException("Duplicate environment ID '" + environmentId + "'.",
                                                 nameof(environmentProfiles));
                 }
 
+                if (configurationState ==
+                    ApiEnvironmentProfileConfigurationState.NotConfigured)
+                {
+                    if (!knownEnvironments.ContainsKey(environmentId))
+                    {
+                        knownEnvironments.Add(
+                            environmentId,
+                            new ApiEnvironmentDescriptor(
+                                environmentId,
+                                ApiEnvironmentStage.Custom,
+                                environment.DisplayName));
+                    }
+
+                    continue;
+                }
+
                 environments.Add(environmentId, environment);
             }
 
-            if (environments.Count == 0)
+            if (environments.Count == 0
+                && (!allowUnconfiguredProfiles || knownEnvironments.Count == 0))
             {
-                throw new ArgumentException("At least one API environment profile is required.",
-                                            nameof(environmentProfiles));
+                string requirement = allowUnconfiguredProfiles
+                    ? "At least one configured or known API environment is required."
+                    : "At least one API environment profile is required.";
+                throw new ArgumentException(requirement, nameof(environmentProfiles));
             }
         }
 
@@ -189,13 +296,37 @@ namespace Deucarian.API.Core
                 string displayName = string.IsNullOrWhiteSpace(profile.DisplayName)
                                              ? environmentId.Value
                                              : profile.DisplayName;
-                return new ApiEnvironmentStatus(environmentId, displayName, true, null);
+                ApiEnvironmentDescriptor configuredDescriptor;
+                ApiEnvironmentStage stage = knownEnvironments.TryGetValue(
+                        environmentId,
+                        out configuredDescriptor)
+                    ? configuredDescriptor.Stage
+                    : ApiEnvironmentStage.Custom;
+                return new ApiEnvironmentStatus(
+                    environmentId,
+                    displayName,
+                    stage,
+                    ApiEnvironmentAvailability.Configured,
+                    null);
+            }
+
+            ApiEnvironmentDescriptor knownDescriptor;
+            if (knownEnvironments.TryGetValue(environmentId, out knownDescriptor))
+            {
+                return new ApiEnvironmentStatus(
+                    environmentId,
+                    knownDescriptor.DisplayName,
+                    knownDescriptor.Stage,
+                    ApiEnvironmentAvailability.Unconfigured,
+                    "Environment '" + environmentId +
+                    "' is known but not configured.");
             }
 
             return new ApiEnvironmentStatus(
                 environmentId,
                 environmentId.Value,
-                false,
+                ApiEnvironmentStage.Custom,
+                ApiEnvironmentAvailability.Unknown,
                 "Environment '" + environmentId + "' is not registered in this composition.");
         }
 
@@ -208,7 +339,8 @@ namespace Deucarian.API.Core
                 return new ApiEnvironmentStatus(
                     default(ApiEnvironmentId),
                     string.Empty,
-                    false,
+                    ApiEnvironmentStage.Custom,
+                    ApiEnvironmentAvailability.Unknown,
                     "The selected environment ID is invalid.");
             }
 
@@ -225,7 +357,7 @@ namespace Deucarian.API.Core
             if (!environments.TryGetValue(environmentId, out environment))
             {
                 client = null;
-                message = "Environment '" + environmentId + "' is not registered.";
+                message = GetEnvironmentResolutionFailure(environmentId);
                 return false;
             }
 
@@ -360,6 +492,15 @@ namespace Deucarian.API.Core
             }
 
             return endpoint;
+        }
+
+        private string GetEnvironmentResolutionFailure(
+            ApiEnvironmentId environmentId)
+        {
+            return knownEnvironments.ContainsKey(environmentId)
+                ? "Environment '" + environmentId +
+                  "' is known but not configured."
+                : "Environment '" + environmentId + "' is not registered.";
         }
 
         /// <summary>String overload for integrations that keep only stable ID strings.</summary>
