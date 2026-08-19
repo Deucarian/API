@@ -179,34 +179,45 @@ namespace Deucarian.API.Editor
                     return;
                 }
 
-                if (!environment.TryGetClient(
-                        new ApiClientId(
-                            ApiConnectionProfileAssetFactory.PrimaryClientId),
-                        out ApiNamedClientDefinition client))
+                if (!TryGetNamedClients(
+                        environment,
+                        out IReadOnlyList<ApiNamedClientDefinition> clients))
                 {
                     DrawState(
                         "Advanced setup",
-                        "This environment has no 'primary' client. Configure its " +
-                        "named clients under Advanced.",
+                        "This environment has no named clients. Configure at " +
+                        "least one under Advanced.",
                         DeucarianEditorStatus.Warning,
                         MessageType.Warning);
                     return;
                 }
 
                 bool canEdit = projectOwned && IsProjectOwned(environment);
-                using (new EditorGUI.DisabledScope(!canEdit))
+                for (int index = 0; index < clients.Count; index++)
                 {
-                    EditorGUI.BeginChangeCheck();
-                    string baseUrl = EditorGUILayout.TextField(
-                        "Base URL",
-                        client.BaseUrl ?? string.Empty);
-                    if (EditorGUI.EndChangeCheck())
+                    ApiNamedClientDefinition client = clients[index];
+                    if (client == null)
                     {
-                        Undo.RecordObject(
-                            environment,
-                            "Configure API environment host");
-                        client.BaseUrl = baseUrl;
-                        EditorUtility.SetDirty(environment);
+                        EditorGUILayout.HelpBox(
+                            "Named client " + (index + 1) + " is missing.",
+                            MessageType.Error);
+                        continue;
+                    }
+
+                    using (new EditorGUI.DisabledScope(!canEdit))
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        string baseUrl = EditorGUILayout.TextField(
+                            GetBaseUrlLabel(client, clients.Count),
+                            client.BaseUrl ?? string.Empty);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            Undo.RecordObject(
+                                environment,
+                                "Configure API environment host");
+                            client.BaseUrl = baseUrl;
+                            EditorUtility.SetDirty(environment);
+                        }
                     }
                 }
 
@@ -316,6 +327,29 @@ namespace Deucarian.API.Editor
             }
 
             return null;
+        }
+
+        internal static bool TryGetNamedClients(
+            ApiEnvironmentProfile environment,
+            out IReadOnlyList<ApiNamedClientDefinition> clients)
+        {
+            clients = environment?.Clients;
+            return clients != null && clients.Count > 0;
+        }
+
+        internal static string GetBaseUrlLabel(
+            ApiNamedClientDefinition client,
+            int clientCount)
+        {
+            if (clientCount <= 1)
+            {
+                return "Base URL";
+            }
+
+            string clientId = client?.ClientId?.Trim();
+            return string.IsNullOrWhiteSpace(clientId)
+                ? "Client Base URL"
+                : clientId + " Base URL";
         }
 
         private static void DrawState(
