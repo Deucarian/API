@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.2 - 2026-08-19
+
+- Prevented both normal and Advanced connection-profile controls from editing
+  referenced environment assets that are not owned by the current project.
+- Added a clear read-only state for package-managed or transient environment
+  references while retaining manual project-owned composition.
+
 ## 1.4.1 - 2026-08-19
 
 - Updated the guided connection-profile inspector to render every configured
