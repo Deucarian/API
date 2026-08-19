@@ -14,7 +14,7 @@ namespace Deucarian.API.Configuration
     ///     await apiClient.SendAsync&lt;ProjectDto[]&gt;(getProjectsEndpoint, cancellationToken);
     /// </code>
     /// </example>
-    [CreateAssetMenu(menuName = "Deucarian/API/Endpoint Definition", fileName = "ApiEndpointDefinition")]
+    [CreateAssetMenu(menuName = "Deucarian/API/Advanced/Building Blocks/Endpoint Definition", fileName = "ApiEndpointDefinition")]
     public sealed class ApiEndpointDefinition : ScriptableObject
     {
         [Tooltip("Friendly name shown in project assets and inspector fields.")]

@@ -7,7 +7,8 @@ namespace Deucarian.API.Configuration
 {
     /// <summary>
     /// ScriptableObject-backed configuration for creating an <c>IApiClient</c>.
-    /// Create one from Assets/Create/Deucarian/API/Client Config, then pass it to
+    /// Create one from Assets/Create/Deucarian/API/Advanced/Building Blocks/Client Config,
+    /// then pass it to
     /// <c>ApiClientFactory.Create(config)</c>.
     /// </summary>
     /// <example>
@@ -17,7 +18,7 @@ namespace Deucarian.API.Configuration
     /// IApiClient apiClient = ApiClientFactory.Create(config);
     /// </code>
     /// </example>
-    [CreateAssetMenu(menuName = "Deucarian/API/Client Config", fileName = "ApiClientConfig")]
+    [CreateAssetMenu(menuName = "Deucarian/API/Advanced/Building Blocks/Client Config", fileName = "ApiClientConfig")]
     public sealed class ApiClientConfig : ScriptableObject
     {
         private const int DefaultTimeoutSeconds = 30;

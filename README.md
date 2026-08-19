@@ -109,6 +109,7 @@ The main runtime APIs are:
 - `IApiClient`: injectable client used by application services.
 - `ApiClientFactory`: creates the default client pipeline from `ApiClientConfig`.
 - `ApiClientConfig`: ScriptableObject config for base URL, default headers, timeout, auth, JSON settings, certificate handling, response format, and logging.
+- `ApiConnectionProfile`: project-facing ScriptableObject that combines environment hosts, known-environment metadata, and one endpoint contract.
 - `ApiEnvironmentId`, `ApiClientId`, `ApiCatalogId`, and `ApiEndpointId`: stable serializable identifiers used across package boundaries.
 - `ApiEnvironmentProfile`: environment-specific named clients, base URLs, headers, and policy defaults.
 - `ApiEndpointCatalog`: stable endpoint IDs, named-client references, relative route templates, methods, auth requirements, response formats, headers, query defaults, policy overlays, and sensitive-call logging suppression.
@@ -150,7 +151,7 @@ access.
 
 Create a config asset:
 
-`Assets > Create > Deucarian > API > Client Config`
+`Assets > Create > Deucarian > API > Advanced > Building Blocks > Client Config`
 
 Set:
 
@@ -240,14 +241,27 @@ and images.
 ## Environment And Endpoint Composition
 
 Environment profiles own concrete hosts. Endpoint catalogs own logical routes and
-request metadata. This keeps a viewer's persisted selection small and safe: store an
-`ApiEnvironmentId`, then resolve it when composing the API service. Do not copy base
-URLs into viewer connection profiles and do not use a global active-environment value.
+request metadata. `ApiConnectionProfile` is the project-facing aggregate that keeps
+those two responsibilities together without storing credentials or an active
+environment. A viewer's persisted selection remains small and safe: store an
+`ApiEnvironmentId`, then resolve it through the connection profile when composing the
+API service. Do not copy base URLs into viewer command/context payloads and do not use
+a global active-environment value.
 
-Create assets from:
+Create the normal project asset from:
 
-- `Assets > Create > Deucarian > API > Environment Profile`
-- `Assets > Create > Deucarian > API > Endpoint Catalog`
+`Assets > Create > Deucarian > API > Connection Profile`
+
+The factory creates one root asset with Development, Testing, Acceptance, and
+Production sub-assets. Each contains a `primary` client with a blank Base URL. It does
+not invent deployment hosts or an endpoint catalog. Assign a package-managed catalog
+from an integration package, or create a project-owned contract when the project owns
+the API. Empty environment slots are shown as **Not configured** and fail closed.
+
+Manual authoring remains available under `Assets > Create > Deucarian > API >
+Advanced > Building Blocks` for custom transports and integration-package
+development. Existing raw assets remain compatible; only their creation-menu
+location changed.
 
 An environment profile can define clients such as `primary`, `media`, or `telemetry`.
 Every environment uses the same client IDs but supplies its own base URLs. A catalog
@@ -274,6 +288,12 @@ ApiEndpoint endpoint = resolved.Endpoint.WithPathParameter("id", projectId);
 ApiResult<ProjectDto> result = await apiClient.SendAsync<ProjectDto>(
     endpoint,
     cancellationToken);
+```
+
+With the project-facing aggregate, the usual call is simply:
+
+```csharp
+ApiComposition composition = connectionProfile.CreateComposition();
 ```
 
 The resolved endpoint uses an absolute URL, so it travels through the existing
@@ -434,7 +454,7 @@ request is sent.
 
 Create an endpoint asset:
 
-`Assets > Create > Deucarian > API > Endpoint Definition`
+`Assets > Create > Deucarian > API > Advanced > Building Blocks > Endpoint Definition`
 
 Configure:
 
@@ -690,7 +710,7 @@ decoders that cannot be handled cleanly with `string` or `byte[]`.
 
 ## Versioning
 
-Current package version: `1.3.0`.
+Current package version: `1.4.0`.
 
 Branch strategy:
 
