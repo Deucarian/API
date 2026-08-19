@@ -9,7 +9,8 @@ Follow the canonical Deucarian governance docs in [Package Registry](https://git
 
 This package owns:
 
-- HTTP/API transport, request building, response parsing, serialization, and cancellation-aware API calls.
+- HTTP/API transport, request building, response parsing, serialization, cancellation-aware
+  API calls, and vendor-neutral environment/endpoint catalog composition.
 
 Registered capabilities:
 - `api-http-client`
