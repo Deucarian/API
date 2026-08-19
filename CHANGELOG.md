@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1 - 2026-08-19
+
+- Updated the guided connection-profile inspector to render every configured
+  named client instead of assuming integrations use the generic `primary` ID.
+- Kept the single-client layout minimal while labeling multi-client hosts with
+  their stable client IDs.
+
 ## 1.4.0 - 2026-08-19
 
 - Added the project-facing `ApiConnectionProfile` aggregate with serializable

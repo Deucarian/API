@@ -211,6 +211,55 @@ namespace Deucarian.API.Tests
         }
 
         [Test]
+        public void Inspector_UsesConfiguredNamedClientsWithoutAssumingPrimary()
+        {
+            ApiEnvironmentProfile environment =
+                ScriptableObject.CreateInstance<ApiEnvironmentProfile>();
+            try
+            {
+                environment.Clients.Add(
+                    new ApiNamedClientDefinition
+                    {
+                        ClientId = "vendor.primary",
+                        BaseUrl = string.Empty
+                    });
+
+                Assert.IsTrue(
+                    ApiConnectionProfileEditor.TryGetNamedClients(
+                        environment,
+                        out var clients));
+                Assert.AreEqual(1, clients.Count);
+                Assert.AreEqual("vendor.primary", clients[0].ClientId);
+                Assert.AreEqual(
+                    "Base URL",
+                    ApiConnectionProfileEditor.GetBaseUrlLabel(
+                        clients[0],
+                        clients.Count));
+
+                environment.Clients.Add(
+                    new ApiNamedClientDefinition
+                    {
+                        ClientId = "vendor.media",
+                        BaseUrl = string.Empty
+                    });
+                Assert.AreEqual(
+                    "vendor.primary Base URL",
+                    ApiConnectionProfileEditor.GetBaseUrlLabel(
+                        clients[0],
+                        environment.Clients.Count));
+                Assert.AreEqual(
+                    "vendor.media Base URL",
+                    ApiConnectionProfileEditor.GetBaseUrlLabel(
+                        environment.Clients[1],
+                        environment.Clients.Count));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(environment);
+            }
+        }
+
+        [Test]
         public void CreationMenus_ExposeOneNormalWorkflowAndAdvancedRawAssets()
         {
             Assert.AreEqual(
