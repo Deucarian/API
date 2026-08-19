@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0 - 2026-08-19
+
+- Added vendor-neutral Development, Testing, Acceptance, and Production stage
+  metadata without assigning vendor hosts.
+- Added sanitized Configured, Unconfigured, and Unknown environment status.
+- Added opt-in known-environment composition so intentionally blank profile
+  slots fail closed without preventing configured environments from resolving.
+- Kept legacy composition constructors strict and continued rejecting malformed
+  or partially configured profiles.
+
 ## 1.2.0 - 2026-08-19
 
 - Added serializable stable IDs for environments, named clients, endpoint catalogs,
