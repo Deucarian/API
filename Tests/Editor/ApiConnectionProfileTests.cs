@@ -260,6 +260,39 @@ namespace Deucarian.API.Tests
         }
 
         [Test]
+        public void Inspector_NeverEditsReferencedNonProjectEnvironments()
+        {
+            Assert.IsTrue(
+                ApiConnectionProfileAssetFactory.TryCreateProjectProfile(
+                    ProfilePath,
+                    out ApiConnectionProfile profile,
+                    out string error),
+                error);
+            Assert.IsTrue(
+                ApiConnectionProfileEditor.CanEditEnvironment(
+                    profile,
+                    profile.Environments[0]));
+
+            ApiEnvironmentProfile transientEnvironment =
+                ScriptableObject.CreateInstance<ApiEnvironmentProfile>();
+            try
+            {
+                Assert.IsFalse(
+                    ApiConnectionProfileEditor.CanEditEnvironment(
+                        profile,
+                        transientEnvironment));
+                Assert.IsFalse(
+                    ApiConnectionProfileEditor.CanEditEnvironment(
+                        null,
+                        profile.Environments[0]));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(transientEnvironment);
+            }
+        }
+
+        [Test]
         public void CreationMenus_ExposeOneNormalWorkflowAndAdvancedRawAssets()
         {
             Assert.AreEqual(
