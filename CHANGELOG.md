@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Use Editor's compact Project Settings shell for the API Connections entry; leave its Control Center page unchanged.
+
 ## [2.0.6] - 2026-09-11
 
 - Explain per-environment hosts with distinct, reserved example addresses. Keep new connection slots blank and fail closed until explicitly configured.
