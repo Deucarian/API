@@ -1,16 +1,15 @@
 {
-  "name": "Deucarian.API",
-  "rootNamespace": "Deucarian.API",
+  "name": "Deucarian.API.Samples.SimpleUsage",
+  "rootNamespace": "Deucarian.API.Samples.SimpleUsage",
   "references": [
-    "Deucarian.Logging",
-    "Deucarian.Diagnostics"
+    "Deucarian.API"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,
   "precompiledReferences": [],
-  "autoReferenced": true,
+  "autoReferenced": false,
   "defineConstraints": [],
   "versionDefines": [],
   "noEngineReferences": false
