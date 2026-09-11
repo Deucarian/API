@@ -15,7 +15,8 @@
     "Deucarian.API.Samples"
   ],
   "testAssemblies": [
-    "Deucarian.API.Tests"
+    "Deucarian.API.Tests",
+    "Deucarian.API.Tests.PlayMode"
   ],
   "requiredDependencies": [
     "com.deucarian.editor",
@@ -25,7 +26,8 @@
     "com.unity.modules.unitywebrequestassetbundle",
     "com.unity.modules.unitywebrequesttexture",
     "com.unity.modules.unitywebrequestwww",
-    "com.unity.nuget.newtonsoft-json"
+    "com.unity.nuget.newtonsoft-json",
+    "com.deucarian.diagnostics"
   ],
   "optionalVersionDefinedDependencies": [],
   "allowedDirectDebugCalls": [],

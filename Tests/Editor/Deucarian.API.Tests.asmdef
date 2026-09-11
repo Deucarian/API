@@ -5,7 +5,8 @@
     "Deucarian.API",
     "Deucarian.API.Editor",
     "Deucarian.Editor",
-    "Newtonsoft.Json"
+    "Newtonsoft.Json",
+    "Deucarian.Diagnostics"
   ],
   "includePlatforms": [
     "Editor"
