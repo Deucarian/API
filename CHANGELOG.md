@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.5] - 2026-09-11
+
+- Replace connection windows and Inspectors with one native, source-owned connection form; retain validation, serialized editing, Undo and per-page state.
+- Require Editor 1.10.6 for the shared native controls, typography, responsive layouts and accessible interaction states.
+
 ## [2.0.4] - 2026-09-09
 
 ### Changed
