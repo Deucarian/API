@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.6] - 2026-09-11
+
+- Explain per-environment hosts with distinct, reserved example addresses. Keep new connection slots blank and fail closed until explicitly configured.
+- Clarify the connection page description and use Editor 1.11.0 for consistently sized actions and persistent Advanced navigation.
+
 ## [2.0.5] - 2026-09-11
 
 - Replace connection windows and Inspectors with one native, source-owned connection form; retain validation, serialized editing, Undo and per-page state.

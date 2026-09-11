@@ -25,7 +25,7 @@ namespace Deucarian.API.Editor
         {
             var root = new VisualElement();
             view = new DeucarianEditorCollectionWorkspace(root, Application.productName, "API connections",
-                "Connect your project to its services.", DeucarianToolIds.ApiConnections, "Find a service…");
+                "Configure service connections and per-environment base URLs.", DeucarianToolIds.ApiConnections, "Find a service…");
             view.UsePanels();
             view.Collection.AddToClassList("dw-service-collection");
             Ui.Show(view.Workspace.Scope, false);
