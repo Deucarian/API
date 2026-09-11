@@ -67,7 +67,7 @@ namespace Deucarian.API.Editor
                 {
                     var client = environment.Clients[i];
                     if (client == null) { fields.Add(Ui.Label("A named client is missing.", "dw-muted")); continue; }
-                    hosts.Text("api-host-" + i, ApiConnectionSettingsEditor.GetBaseUrlLabel(client, environment.Clients.Count),
+                    var host = hosts.Text("api-host-" + i, ApiConnectionSettingsEditor.GetBaseUrlLabel(client, environment.Clients.Count),
                         () => client.BaseUrl ?? string.Empty, value =>
                         {
                             Undo.RecordObject(environment, "Configure API host");
@@ -75,7 +75,10 @@ namespace Deucarian.API.Editor
                             EditorUtility.SetDirty(environment);
                             Refresh();
                         });
+                    host.tooltip = "Enter the real " + selected.DisplayName + " service address. Example only: " +
+                        HostExample(selected.Stage) + ". No address is selected automatically.";
                 }
+                hosts.Note(() => "Configure the " + selected.DisplayName + " host explicitly. Other environments keep their own addresses.");
                 fields.SetEnabled(editable);
                 form.ReadOnly("api-configuration", "Status", () => environment == null ? "Missing" : environment.ClassifyConfiguration(out _).ToString());
                 var note = form.ReadOnly("api-configuration-details", "Details", () =>
@@ -154,5 +157,8 @@ namespace Deucarian.API.Editor
                 if (environment != null && environment.TryGetId(out var candidate) && candidate == id) return environment;
             return null;
         }
+
+        internal static string HostExample(ApiEnvironmentStage stage) =>
+            "https://" + (Enum.IsDefined(typeof(ApiEnvironmentStage), stage) ? stage.ToString().ToLowerInvariant() : "custom") + ".example.invalid";
     }
 }
