@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0] - 2026-09-11
+
+- Add a reusable typed request trigger and a local sample showing explicit request contracts and one-time client composition.
+- Include a playable Definition Workflow sample with configured hosts, short callers and usage documentation.
+- Align declared package dependencies with the definition-authoring development wave.
+
+
 ## [2.0.6] - 2026-09-11
 
 - Explain per-environment hosts with distinct, reserved example addresses. Keep new connection slots blank and fail closed until explicitly configured.

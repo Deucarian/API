@@ -1,0 +1,6 @@
+{
+  "name": "Deucarian.API.Samples.DefinitionWorkflow",
+  "references": [
+    "Deucarian.API"
+  ]
+}
