@@ -1,10 +1,12 @@
 # Changelog
 
-## [2.1.0] - 2026-09-11
+## [2.1.0] - Unreleased
 
 - Add a reusable typed request trigger and a local sample showing explicit request contracts and one-time client composition.
 - Include a playable Definition Workflow sample with configured hosts, short callers and usage documentation.
 - Align declared package dependencies with the definition-authoring development wave.
+
+- Use Editor's compact Project Settings shell for the API Connections entry; leave its Control Center page unchanged.
 
 
 ## [2.0.6] - 2026-09-11

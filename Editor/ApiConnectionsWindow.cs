@@ -16,17 +16,20 @@ namespace Deucarian.API.Editor
         private void OnDisable() { session?.Dispose(); session = null; }
 
         [SettingsProvider]
-        private static SettingsProvider CreateSettingsProvider() =>
-            new SettingsProvider("Project/Deucarian/API Connections", SettingsScope.Project)
+        private static SettingsProvider CreateSettingsProvider()
+        {
+            DeucarianEditorProjectSettingsPage page = null;
+            return new SettingsProvider("Project/Deucarian/API Connections", SettingsScope.Project)
             {
                 label = "API Connections",
                 activateHandler = (_, root) =>
                 {
-                    var panel = DeucarianEditorInspector.CreateToolkit("API connections");
-                    panel.Add(DeucarianEditorWorkspaceControls.Label("Configure project hosts and service bindings.", "dw-muted"));
-                    panel.Add(DeucarianEditorWorkspaceControls.Button("Open API connections", Open, true));
-                    root.Add(panel);
-                }
+                    page?.Dispose();
+                    page = new DeucarianEditorProjectSettingsPage(root, "API connections", "Configure project hosts, environments and service bindings in the Control Center.");
+                    page.Content.Add(DeucarianEditorWorkspaceControls.Button("Open API connections", Open, true));
+                },
+                deactivateHandler = () => { page?.Dispose(); page = null; }
             };
+        }
     }
 }
