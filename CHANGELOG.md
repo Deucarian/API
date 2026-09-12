@@ -1,5 +1,9 @@
 # Changelog
 
+## Asset workflow — Unreleased
+
+- Discover installed service definitions, retain live asset selections, provide inline custom-service creation and explicit project binding actions.
+
 ## [2.1.0] - Unreleased
 
 - Add a reusable typed request trigger and a local sample showing explicit request contracts and one-time client composition.
