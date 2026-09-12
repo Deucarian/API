@@ -12,7 +12,8 @@
     "Deucarian.API.Editor"
   ],
   "sampleAssemblies": [
-    "Deucarian.API.Samples"
+    "Deucarian.API.Samples",
+    "Deucarian.API.Samples.DefinitionWorkflow"
   ],
   "testAssemblies": [
     "Deucarian.API.Tests",
@@ -21,12 +22,12 @@
   "requiredDependencies": [
     "com.deucarian.editor",
     "com.deucarian.logging",
-    "com.unity.modules.assetbundle",
     "com.unity.modules.unitywebrequest",
+    "com.unity.nuget.newtonsoft-json",
+    "com.unity.modules.assetbundle",
     "com.unity.modules.unitywebrequestassetbundle",
     "com.unity.modules.unitywebrequesttexture",
     "com.unity.modules.unitywebrequestwww",
-    "com.unity.nuget.newtonsoft-json",
     "com.deucarian.diagnostics"
   ],
   "optionalVersionDefinedDependencies": [],

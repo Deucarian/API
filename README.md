@@ -1,5 +1,15 @@
 # Deucarian API
 
+## Typed definition workflow
+
+One startup component registers the typed endpoint and a local mock transport. Callers and Inspector components reuse the same request and response contract.
+
+Start with the [Definition Workflow walkthrough](Documentation~/DefinitionWorkflow.md).
+Import **Definition Workflow** in Package Manager for a configured sample scene
+and short caller scripts. The sample keeps typed contracts and service setup explicit, with reusable
+components for scene callers.
+
+
 ## Overview
 
 Deucarian API is a reusable Unity/C# API client package built around `IApiClient`.
@@ -720,7 +730,7 @@ decoders that cannot be handled cleanly with `string` or `byte[]`.
 
 ## Versioning
 
-Current package version: `2.0.6`.
+Current package version: `2.1.0`.
 
 Branch strategy:
 
