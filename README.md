@@ -1,5 +1,9 @@
 # Deucarian API
 
+## Asset selection and project defaults
+
+In Control Center → Connections → API Connections, Add connection offers the sole valid installed service definition when unambiguous. Choose searches project and package assets; Create opens a custom-service form in the same page. A definition describes stable service/client/environment IDs and relative endpoints, not deployment hosts or credentials. Create settings makes project-owned connection settings; Bind existing or Apply replacement is an explicit operation. Server addresses stay unset until you configure real hosts. Selecting an asset never sends a request.
+
 ## Typed definition workflow
 
 One startup component registers the typed endpoint and a local mock transport. Callers and Inspector components reuse the same request and response contract.

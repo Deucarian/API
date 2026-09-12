@@ -23,6 +23,7 @@ namespace Deucarian.API.Editor
 
         internal ApiConnectionsPage()
         {
+            definition = ApiServiceDefinitionAuthoring.FindOnlyAvailable();
             var root = new VisualElement();
             view = new DeucarianEditorCollectionWorkspace(root, Application.productName, "API connections",
                 "Configure service connections and per-environment base URLs.", DeucarianToolIds.ApiConnections, "Find a service…");
@@ -99,9 +100,13 @@ namespace Deucarian.API.Editor
             }
             var binding = new Foldout { text = "Project binding", value = false };
             binding.AddToClassList("dw-foldout"); root.Add(binding);
-            var asset = new DeucarianEditorWorkspaceForm(binding).Asset("api-bound-settings", "Connection settings", typeof(ApiConnectionSettings),
-                () => settings, value => { draft = value as ApiConnectionSettings; BindDraft(); });
+            draft = settings;
+            var replacement = Ui.Button("Apply replacement", BindDraft); replacement.SetEnabled(false);
+            var asset = new DeucarianEditorWorkspaceForm(binding).AssetWithActions("api-bound-settings", "Connection settings", typeof(ApiConnectionSettings),
+                () => draft, value => { draft = value as ApiConnectionSettings; replacement.SetEnabled(draft != null && draft != settings); },
+                customize: DeucarianEditorAssetCatalog.CopyToProject);
             asset.tooltip = "Choose a replacement project-owned connection for this service.";
+            binding.Add(replacement);
             binding.Add(Ui.Button("Remove binding", () =>
             {
                 if (!ApiServiceId.TryParse(selectedService, out var id)) return;
@@ -116,13 +121,19 @@ namespace Deucarian.API.Editor
         {
             root.Add(Ui.Label("Add a connection", "dw-section-title"));
             root.Add(Ui.Label("Choose a service definition, then create project settings or bind an existing asset.", "dw-muted"));
+            var create = Ui.Button("Create settings", Create, true); create.name = "api-create-settings"; create.SetEnabled(definition != null && definition.IsValid(out _));
+            var bind = Ui.Button("Bind existing", BindDraft); bind.name = "api-bind-settings"; bind.SetEnabled(draft != null);
+            var authoring = new VisualElement();
+            Ui.Show(authoring, false);
             var form = new DeucarianEditorWorkspaceForm(root);
-            form.Asset("api-add-definition", "Service definition", typeof(ApiServiceDefinition), () => definition,
-                value => { definition = value as ApiServiceDefinition; RenderDetails(); });
-            form.Asset("api-add-settings", "Existing settings", typeof(ApiConnectionSettings), () => draft,
-                value => { draft = value as ApiConnectionSettings; RenderDetails(); });
-            var create = Ui.Button("Create settings", Create, true); create.SetEnabled(definition != null);
-            var bind = Ui.Button("Bind existing", BindDraft); bind.SetEnabled(draft != null);
+            form.AssetWithActions("api-add-definition", "Service definition", typeof(ApiServiceDefinition), () => definition,
+                value => { definition = value as ApiServiceDefinition; create.SetEnabled(definition != null && definition.IsValid(out _)); },
+                create: () => { Ui.Show(authoring, true); return null; }, customize: ApiServiceDefinitionAuthoring.Customize);
+            form.AssetWithActions("api-add-settings", "Existing settings", typeof(ApiConnectionSettings), () => draft,
+                value => { draft = value as ApiConnectionSettings; bind.SetEnabled(draft != null); }, customize: DeucarianEditorAssetCatalog.CopyToProject);
+            root.Add(authoring);
+            ApiServiceDefinitionAuthoring.BuildForm(authoring, value =>
+            { definition = value; create.SetEnabled(true); form.Refresh(); Ui.Show(authoring, false); });
             root.Add(Ui.EndActions(bind, create));
             if (!string.IsNullOrEmpty(message)) root.Add(Ui.Label(message, "dw-muted"));
         }
