@@ -1,0 +1,14 @@
+name: WebGL texture lifecycle
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+jobs:
+  texture-lifecycle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test Tests/WebGL/texture-response.test.cjs

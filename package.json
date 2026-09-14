@@ -1,6 +1,6 @@
 {
   "name": "com.deucarian.api",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "displayName": "Deucarian API",
   "description": "A reusable Unity API foundation with package-owned service definitions, project-owned connection settings, typed identifiers, validation, and HTTP transport.",
   "license": "MIT",
@@ -21,7 +21,8 @@
     "com.unity.modules.unitywebrequestassetbundle": "1.0.0",
     "com.unity.modules.unitywebrequesttexture": "1.0.0",
     "com.unity.modules.unitywebrequestwww": "1.0.0",
-    "com.deucarian.diagnostics": "0.2.3"
+    "com.deucarian.diagnostics": "0.2.3",
+    "com.deucarian.common": "0.2.1"
   },
   "keywords": [
     "api",

@@ -3,7 +3,8 @@
   "rootNamespace": "Deucarian.API",
   "references": [
     "Deucarian.Logging",
-    "Deucarian.Diagnostics"
+    "Deucarian.Diagnostics",
+    "Deucarian.Common"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

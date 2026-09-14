@@ -157,7 +157,11 @@ namespace Deucarian.API.Core
             switch (responseFormat)
             {
                 case ApiResponseFormat.Texture:
+#if UNITY_WEBGL && !UNITY_EDITOR
+                    return new DownloadHandlerBuffer();
+#else
                     return new DownloadHandlerTexture(true);
+#endif
                 default:
                     return new DownloadHandlerBuffer();
             }

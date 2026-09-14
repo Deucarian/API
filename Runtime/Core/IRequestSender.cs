@@ -9,6 +9,7 @@ namespace Deucarian.API.Core
     {
         Task<ApiTransportResponse> SendAsync(UnityWebRequest request,
                                              ApiRequest apiRequest,
+                                             ApiResponseFormat responseFormat,
                                              CancellationToken cancellationToken);
     }
 }

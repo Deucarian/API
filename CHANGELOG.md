@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1 - Unreleased
+
+- Decode WebGL image responses through the browser and upload bounded tiles across frames. Cancel pending decoding and uploads with the request. Avoid redundant byte/text copies for typed responses on all platforms.
+
 ## Asset workflow — Unreleased
 
 - Discover installed service definitions, retain live asset selections, provide inline custom-service creation and explicit project binding actions.

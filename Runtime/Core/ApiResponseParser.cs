@@ -50,9 +50,7 @@ namespace Deucarian.API.Core
 
                 case ApiResponseFormat.Texture:
                     EnsureTextureType(responseType, responseFormat);
-                    if (response?.RawBytes != null
-                        && response.RawBytes.Length > 0
-                        && response.Texture == null)
+                    if (response?.Texture == null)
                     {
                         throw new InvalidOperationException(
                                 "Texture response could not be decoded" + GetRequestUrlSuffix(response) + ".");

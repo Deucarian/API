@@ -28,7 +28,8 @@
     "com.unity.modules.unitywebrequestassetbundle",
     "com.unity.modules.unitywebrequesttexture",
     "com.unity.modules.unitywebrequestwww",
-    "com.deucarian.diagnostics"
+    "com.deucarian.diagnostics",
+    "com.deucarian.common"
   ],
   "optionalVersionDefinedDependencies": [],
   "allowedDirectDebugCalls": [],
