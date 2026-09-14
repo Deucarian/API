@@ -52,7 +52,7 @@ namespace Deucarian.API.Core
                 unityRequest = await _requestBuilder.BuildAsync(request, responseFormat, cancellationToken);
                 LogRequest(request, unityRequest.url);
 
-                transportResponse = await _requestSender.SendAsync(unityRequest, request, cancellationToken);
+                transportResponse = await _requestSender.SendAsync(unityRequest, request, responseFormat, cancellationToken);
                 ApiResult<TResponse> result;
                 if (transportResponse.IsSuccessStatusCode
                     && transportResponse.UnityResult == UnityWebRequest.Result.Success)

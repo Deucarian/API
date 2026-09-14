@@ -980,6 +980,7 @@ namespace Deucarian.API.Tests
 
             public Task<ApiTransportResponse> SendAsync(UnityWebRequest request,
                                                         ApiRequest apiRequest,
+                                                        ApiResponseFormat responseFormat,
                                                         CancellationToken cancellationToken)
             {
                 return Task.FromResult(new ApiTransportResponse
@@ -998,6 +999,7 @@ namespace Deucarian.API.Tests
         {
             public Task<ApiTransportResponse> SendAsync(UnityWebRequest request,
                                                         ApiRequest apiRequest,
+                                                        ApiResponseFormat responseFormat,
                                                         CancellationToken cancellationToken)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -1019,6 +1021,7 @@ namespace Deucarian.API.Tests
             public Task<ApiTransportResponse> SendAsync(
                 UnityWebRequest request,
                 ApiRequest apiRequest,
+                ApiResponseFormat responseFormat,
                 CancellationToken cancellationToken)
             {
                 return Task.FromResult(new ApiTransportResponse
