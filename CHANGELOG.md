@@ -2,7 +2,7 @@
 
 ## 2.1.1 - Unreleased
 
-- Decode WebGL image responses through the browser and upload bounded tiles across frames. Cancel pending decoding and uploads with the request. Avoid redundant byte/text copies for typed responses on all platforms.
+- Add opt-in incremental browser uploads for display-only image responses, preserving default CPU-readable textures. Cancel pending decoding and uploads with the request. Avoid redundant byte/text copies for typed responses on all platforms.
 
 ## Asset workflow — Unreleased
 

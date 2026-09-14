@@ -77,7 +77,7 @@ namespace Deucarian.API.Core
 
             UnityWebRequest webRequest = new UnityWebRequest(url, request.Method.ToString())
             {
-                    downloadHandler = CreateDownloadHandler(responseFormat)
+                    downloadHandler = CreateDownloadHandler(responseFormat, request)
             };
 
             if (RequestCanHaveBody(request.Method) && request.Body != null)
@@ -148,20 +148,19 @@ namespace Deucarian.API.Core
             List<IMultipartFormSection> form = CreateMultipartForm(request.Body);
             UnityWebRequest webRequest = UnityWebRequest.Post(url, form);
             webRequest.downloadHandler?.Dispose();
-            webRequest.downloadHandler = CreateDownloadHandler(responseFormat);
+            webRequest.downloadHandler = CreateDownloadHandler(responseFormat, request);
             return webRequest;
         }
 
-        private static DownloadHandler CreateDownloadHandler(ApiResponseFormat responseFormat)
+        private static DownloadHandler CreateDownloadHandler(ApiResponseFormat responseFormat, ApiRequest request)
         {
             switch (responseFormat)
             {
                 case ApiResponseFormat.Texture:
 #if UNITY_WEBGL && !UNITY_EDITOR
-                    return new DownloadHandlerBuffer();
-#else
-                    return new DownloadHandlerTexture(true);
+                    if (request.UseIncrementalTextureUpload) return new DownloadHandlerBuffer();
 #endif
+                    return new DownloadHandlerTexture(true);
                 default:
                     return new DownloadHandlerBuffer();
             }

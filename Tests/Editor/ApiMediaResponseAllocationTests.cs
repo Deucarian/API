@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Threading;
 using Deucarian.API.Core;
+using Deucarian.API.Configuration;
 using Deucarian.API.Models;
 using NUnit.Framework;
 using UnityEngine;
@@ -21,16 +22,25 @@ namespace Deucarian.API.Tests
             Texture2D loaded = null;
             try
             {
+                source.SetPixel(0, 0, Color.red);
+                source.Apply();
                 File.WriteAllBytes(file, source.EncodeToPNG());
-                using (var request = UnityWebRequestTexture.GetTexture(new Uri(file).AbsoluteUri, true))
+                var apiRequest = new ApiRequest(new Uri(file).AbsoluteUri);
+                var builder = new UnityWebRequestBuilder(ApiClientConfig.CreateRuntimeDefault(),
+                    new NewtonsoftApiSerializer(), null, null);
+                var build = builder.BuildAsync(apiRequest, ApiResponseFormat.Texture, CancellationToken.None);
+                while (!build.IsCompleted) yield return null;
+                using (var request = build.GetAwaiter().GetResult())
                 {
-                    var task = new UnityWebRequestSender().SendAsync(request, new ApiRequest(request.url),
+                    var task = new UnityWebRequestSender().SendAsync(request, apiRequest,
                         ApiResponseFormat.Texture, CancellationToken.None);
                     while (!task.IsCompleted) yield return null;
                     var result = task.GetAwaiter().GetResult();
                     loaded = result.Texture;
                     Assert.IsNotNull(loaded);
                     Assert.AreEqual(32, loaded.width);
+                    Assert.That(loaded.GetPixel(0, 0).r, Is.GreaterThan(0.99f),
+                        "Default API texture requests must preserve CPU pixel access.");
                     Assert.IsNull(result.RawBytes, "Texture downloads must not allocate a redundant byte array.");
                     Assert.IsNull(result.RawBody, "Binary responses must not be decoded to text.");
                 }

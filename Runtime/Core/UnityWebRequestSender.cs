@@ -40,7 +40,7 @@ namespace Deucarian.API.Core
             string textureDecodeError;
             Texture2D texture = TryGetTexture(request, out textureDecodeError);
 #if UNITY_WEBGL && !UNITY_EDITOR
-            if (responseFormat == ApiResponseFormat.Texture && !IsErrorResponse(request))
+            if (responseFormat == ApiResponseFormat.Texture && apiRequest.UseIncrementalTextureUpload && !IsErrorResponse(request))
                 texture = await WebGLTextureResponseDecoder.DecodeAsync(request.downloadHandler.data, cancellationToken);
 #endif
             string assetBundleDecodeError;

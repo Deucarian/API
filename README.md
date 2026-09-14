@@ -612,9 +612,16 @@ var request = new ApiRequest("reports/latest.pdf", HttpMethod.GET)
 ApiResult<byte[]> result = await apiClient.SendAsync<byte[]>(request, cancellationToken);
 ```
 
-Texture responses use Unity's `DownloadHandlerTexture`. API preserves the
-HTTP status code, response headers, raw bytes, and any useful text body Unity
-exposes for failed texture requests. Some servers return JSON error bodies for
+Texture responses normally use Unity's `DownloadHandlerTexture` and retain CPU
+pixel access. For display-only images, set `ApiRequest.UseIncrementalTextureUpload`
+to `true`: WebGL then decodes through ImageBitmap and uploads one bounded tile
+per browser frame. These GPU image results must not be read or modified through
+CPU pixel APIs. Native platforms retain Unity's decoder. Cancellation releases
+pending bitmaps and incomplete textures.
+
+Typed image responses avoid redundant encoded byte and text copies. API preserves
+the HTTP status code, response headers, and useful text error bodies up to 64 KiB.
+Some servers return JSON error bodies for
 image endpoints, but `DownloadHandlerTexture` does not guarantee rich text error
 access. If you need reliable structured error parsing for a media endpoint,
 request `byte[]` or `string` for that workflow and decode the media in project
