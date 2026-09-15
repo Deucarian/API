@@ -105,6 +105,13 @@ namespace Deucarian.API.Models
         public ApiResponseFormat ResponseFormat { get; set; } = ApiResponseFormat.Auto;
 
         /// <summary>
+        /// Opts display-only textures into asynchronous browser decoding and incremental GPU uploads.
+        /// WebGL results must not be read or modified through CPU pixel APIs. Defaults to false
+        /// to preserve readable texture responses. Other platforms retain their native decoder.
+        /// </summary>
+        public bool UseIncrementalTextureUpload { get; set; }
+
+        /// <summary>
         /// Optional JSON property-name casing override. Null uses the client configuration.
         /// </summary>
         public ApiJsonPropertyNamingPolicy? JsonPropertyNamingOverride { get; set; }

@@ -13,6 +13,7 @@ namespace Deucarian.API.Core
     {
         public async Task<ApiTransportResponse> SendAsync(UnityWebRequest request,
                                                           ApiRequest apiRequest,
+                                                          ApiResponseFormat responseFormat,
                                                           CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -32,10 +33,16 @@ namespace Deucarian.API.Core
             cancellationToken.ThrowIfCancellationRequested();
             ReportProgress(request, apiRequest, true);
 
-            bool isAssetBundleResponse = request.downloadHandler is DownloadHandlerAssetBundle;
-            byte[] rawBytes = isAssetBundleResponse ? null : request.downloadHandler?.data;
+            // Only byte responses need a managed copy. Texture handlers already own the
+            // decoded resource; copying their full download creates avoidable GC pressure.
+            byte[] rawBytes = responseFormat == ApiResponseFormat.Bytes
+                ? request.downloadHandler?.data : null;
             string textureDecodeError;
             Texture2D texture = TryGetTexture(request, out textureDecodeError);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            if (responseFormat == ApiResponseFormat.Texture && apiRequest.UseIncrementalTextureUpload && !IsErrorResponse(request))
+                texture = await WebGLTextureResponseDecoder.DecodeAsync(request.downloadHandler.data, cancellationToken);
+#endif
             string assetBundleDecodeError;
             AssetBundle assetBundle = TryGetAssetBundle(request, out assetBundleDecodeError);
 
@@ -43,7 +50,7 @@ namespace Deucarian.API.Core
             {
                     StatusCode = request.responseCode,
                     RequestUrl = request.url,
-                    RawBody = GetRawBody(request, rawBytes),
+                    RawBody = GetRawBody(request, rawBytes, responseFormat),
                     RawBytes = rawBytes,
                     Texture = texture,
                     AssetBundle = assetBundle,
@@ -93,14 +100,17 @@ namespace Deucarian.API.Core
             }
         }
 
-        private static string GetRawBody(UnityWebRequest request, byte[] rawBytes)
+        private static string GetRawBody(UnityWebRequest request, byte[] rawBytes, ApiResponseFormat format)
         {
-            if (request.downloadHandler is DownloadHandlerBuffer)
-            {
-                return request.downloadHandler.text;
-            }
+            if (!IsErrorResponse(request))
+                return format == ApiResponseFormat.Text || format == ApiResponseFormat.Json
+                    ? request.downloadHandler?.text : null;
 
-            return IsErrorResponse(request) ? TryDecodeText(rawBytes) : null;
+            // Keep useful small server errors without copying/decoding arbitrary media bodies.
+            const ulong maximumErrorBodyBytes = 65536;
+            if (request.downloadedBytes > maximumErrorBodyBytes ||
+                request.downloadHandler is DownloadHandlerAssetBundle) return null;
+            return TryDecodeText(rawBytes ?? request.downloadHandler?.data);
         }
 
         private static bool IsErrorResponse(UnityWebRequest request)

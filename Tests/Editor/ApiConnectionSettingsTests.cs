@@ -8,12 +8,15 @@ using Deucarian.API.Models;
 using Deucarian.Editor;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Deucarian.API.Tests
 {
     public sealed class ApiConnectionSettingsTests
     {
+        private sealed class HostGuidanceWindow : EditorWindow { }
         private const string TestDirectory =
             "Assets/__DeucarianApiConnectionSettingsTests";
         private const string SettingsPath =
@@ -40,25 +43,13 @@ namespace Deucarian.API.Tests
         [Test]
         public void ApiConnectionsWindowUsesSharedWorkbenchChrome()
         {
-            UnityEditor.PackageManager.PackageInfo package =
-                UnityEditor.PackageManager.PackageInfo.FindForAssembly(
-                    typeof(ApiConnectionsWindow).Assembly);
-            Assert.That(package, Is.Not.Null);
-            string source = File.ReadAllText(
-                Path.Combine(
-                    package.resolvedPath,
-                    "Editor",
-                    "ApiConnectionsWindow.cs"));
-
-            Assert.That(
-                source,
-                Does.Contain("DeucarianEditorWorkbenchGUI.BeginSettingsPage"));
-            Assert.That(
-                source,
-                Does.Contain("DeucarianEditorChrome.DrawPackageHeader"));
-            Assert.That(
-                source,
-                Does.Contain("DeucarianEditorChrome.DrawFooterVersion"));
+            using (var page = ApiConnectionsWindow.CreatePage())
+            {
+                Assert.That(page.Root.Q("workspace-navigation"), Is.Not.Null);
+                Assert.That(page.Root.Q("workspace-collection"), Is.Not.Null);
+                Assert.That(page.Root.Q("workspace-details"), Is.Not.Null);
+                Assert.That(page.Root.Query<IMGUIContainer>().ToList(), Is.Empty);
+            }
         }
 
         [SetUp]
@@ -70,13 +61,44 @@ namespace Deucarian.API.Tests
                 "__DeucarianApiConnectionSettingsTests");
         }
 
+        [Test]
+        public void OpenPageReflectsExternalBindingChangesWithoutReplacingUnchangedFields()
+        {
+            var definition = CreateServiceDefinitionAsset();
+            Assert.IsTrue(ApiConnectionSettingsAssetFactory.TryCreateProjectSettings(
+                SettingsPath, definition, out var settings, out string error), error);
+            using (var page = ApiConnectionsWindow.CreatePage())
+            {
+                Assert.IsTrue(ApiConnectionProjectSettings.instance.TryBind(settings, out error), error);
+                page.Update(new Rect(0, 0, 1586, 940));
+                string row = "workspace-item-example.api|" + AssetDatabase.AssetPathToGUID(SettingsPath);
+                Assert.NotNull(page.Root.Q(row));
+                var environment = page.Root.Q<PopupField<string>>("api-environment");
+                Assert.NotNull(environment);
+                page.Update(new Rect(0, 0, 1586, 940));
+                Assert.AreSame(environment, page.Root.Q<PopupField<string>>("api-environment"));
+                var details = page.Root.Query<Foldout>().ToList().Where(f => !f.ClassListContains("dw-navigation-group")).ToArray();
+                foreach (var detail in details) detail.value = true;
+                page.Deactivate(); page.Activate(null);
+                Assert.AreSame(environment, page.Root.Q<PopupField<string>>("api-environment"));
+                foreach (var detail in details) { Assert.IsTrue(page.Root.Contains(detail)); Assert.IsTrue(detail.value); }
+                ApiConnectionProjectSettings.instance.Clear(new ApiServiceId("example.api"));
+                page.Update(new Rect(0, 0, 1586, 940));
+                Assert.IsNull(page.Root.Q(row));
+                if (ApiConnectionProjectSettings.instance.Bindings.Count == 0)
+                    Assert.NotNull(page.Root.Q("api-add-definition"));
+                else
+                    Assert.NotNull(page.Root.Q<PopupField<string>>("api-environment"), "Other project services remain available after clearing this binding.");
+                Assert.That(page.Root.Query<IMGUIContainer>().ToList(), Is.Empty);
+            }
+        }
+
         [TearDown]
         public void TearDown()
         {
             ApiConnectionProjectSettings.instance.Clear(
                 new ApiServiceId("example.api"));
             AssetDatabase.DeleteAsset(TestDirectory);
-            AssetDatabase.Refresh();
         }
 
         [Test]
@@ -124,6 +146,41 @@ namespace Deucarian.API.Tests
             Assert.AreEqual(
                 5,
                 assets.OfType<ApiEnvironmentProfile>().Count());
+        }
+
+        [Test]
+        public void EnvironmentExamplesAreDistinctAndNeverBecomeConnectionDefaults()
+        {
+            var definition = CreateServiceDefinitionAsset();
+            Assert.IsTrue(ApiConnectionSettingsAssetFactory.TryCreateProjectSettings(
+                SettingsPath, definition, out var settings, out string error), error);
+            var window = ScriptableObject.CreateInstance<HostGuidanceWindow>();
+            window.Show();
+            var root = window.rootVisualElement;
+            try
+            {
+                using (var form = new ApiConnectionForm(root, settings))
+                {
+                    foreach (var environment in settings.Environments)
+                        Assert.That(environment.Clients[0].BaseUrl, Is.Null.Or.Empty);
+                    for (int index = 0; index < 5; index++)
+                    {
+                        var selection = root.Q<PopupField<string>>("api-environment");
+                        selection.value = selection.choices[index];
+                        var host = root.Q<TextField>("api-host-0");
+                        Assert.That(host.value, Is.Empty);
+                        Assert.That(host.tooltip, Does.Contain(selection.choices[index]));
+                        Assert.That(host.tooltip, Does.Contain(".example.invalid"));
+                        Assert.That(settings.Environments[index].ClassifyConfiguration(out _),
+                            Is.EqualTo(ApiEnvironmentProfileConfigurationState.NotConfigured));
+                    }
+                }
+            }
+            finally { window.Close(); }
+            Assert.That(ApiConnectionForm.HostExample(ApiEnvironmentStage.Development),
+                Is.EqualTo("https://development.example.invalid"));
+            Assert.That(ApiConnectionForm.HostExample(ApiEnvironmentStage.Local),
+                Is.Not.EqualTo(ApiConnectionForm.HostExample(ApiEnvironmentStage.Production)));
         }
 
         [Test]

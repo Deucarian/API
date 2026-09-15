@@ -1,5 +1,19 @@
 # Deucarian API
 
+## Asset selection and project defaults
+
+In Control Center → Connections → API Connections, Add connection offers the sole valid installed service definition when unambiguous. Choose searches project and package assets; Create opens a custom-service form in the same page. A definition describes stable service/client/environment IDs and relative endpoints, not deployment hosts or credentials. Create settings makes project-owned connection settings; Bind existing or Apply replacement is an explicit operation. Server addresses stay unset until you configure real hosts. Selecting an asset never sends a request.
+
+## Typed definition workflow
+
+One startup component registers the typed endpoint and a local mock transport. Callers and Inspector components reuse the same request and response contract.
+
+Start with the [Definition Workflow walkthrough](Documentation~/DefinitionWorkflow.md).
+Import **Definition Workflow** in Package Manager for a configured sample scene
+and short caller scripts. The sample keeps typed contracts and service setup explicit, with reusable
+components for scene callers.
+
+
 ## Overview
 
 Deucarian API is a reusable Unity/C# API client package built around `IApiClient`.
@@ -598,9 +612,16 @@ var request = new ApiRequest("reports/latest.pdf", HttpMethod.GET)
 ApiResult<byte[]> result = await apiClient.SendAsync<byte[]>(request, cancellationToken);
 ```
 
-Texture responses use Unity's `DownloadHandlerTexture`. API preserves the
-HTTP status code, response headers, raw bytes, and any useful text body Unity
-exposes for failed texture requests. Some servers return JSON error bodies for
+Texture responses normally use Unity's `DownloadHandlerTexture` and retain CPU
+pixel access. For display-only images, set `ApiRequest.UseIncrementalTextureUpload`
+to `true`: WebGL then decodes through ImageBitmap and uploads one bounded tile
+per browser frame. These GPU image results must not be read or modified through
+CPU pixel APIs. Native platforms retain Unity's decoder. Cancellation releases
+pending bitmaps and incomplete textures.
+
+Typed image responses avoid redundant encoded byte and text copies. API preserves
+the HTTP status code, response headers, and useful text error bodies up to 64 KiB.
+Some servers return JSON error bodies for
 image endpoints, but `DownloadHandlerTexture` does not guarantee rich text error
 access. If you need reliable structured error parsing for a media endpoint,
 request `byte[]` or `string` for that workflow and decode the media in project
@@ -720,7 +741,7 @@ decoders that cannot be handled cleanly with `string` or `byte[]`.
 
 ## Versioning
 
-Current package version: `2.0.4`.
+Current package version: `2.1.1`.
 
 Branch strategy:
 
@@ -1033,3 +1054,7 @@ deprecated, or removed. This includes:
 ## License
 
 MIT. See [LICENSE.md](LICENSE.md).
+
+## Simple typed usage
+
+See [Simple usage](Documentation~/SimpleUsage.md) for the short caller, Inspector selections and one-time scoped setup.

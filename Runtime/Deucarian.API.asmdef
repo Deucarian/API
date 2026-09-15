@@ -2,7 +2,9 @@
   "name": "Deucarian.API",
   "rootNamespace": "Deucarian.API",
   "references": [
-    "Deucarian.Logging"
+    "Deucarian.Logging",
+    "Deucarian.Diagnostics",
+    "Deucarian.Common"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

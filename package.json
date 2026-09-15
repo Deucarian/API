@@ -1,6 +1,6 @@
 {
   "name": "com.deucarian.api",
-  "version": "2.0.4",
+  "version": "2.1.1",
   "displayName": "Deucarian API",
   "description": "A reusable Unity API foundation with package-owned service definitions, project-owned connection settings, typed identifiers, validation, and HTTP transport.",
   "license": "MIT",
@@ -13,14 +13,16 @@
     "url": "git+https://github.com/Deucarian/API.git"
   },
   "dependencies": {
-    "com.deucarian.editor": "1.7.0",
+    "com.deucarian.editor": "1.13.0",
     "com.deucarian.logging": "1.0.4",
     "com.unity.modules.unitywebrequest": "1.0.0",
     "com.unity.nuget.newtonsoft-json": "3.2.2",
     "com.unity.modules.assetbundle": "1.0.0",
     "com.unity.modules.unitywebrequestassetbundle": "1.0.0",
     "com.unity.modules.unitywebrequesttexture": "1.0.0",
-    "com.unity.modules.unitywebrequestwww": "1.0.0"
+    "com.unity.modules.unitywebrequestwww": "1.0.0",
+    "com.deucarian.diagnostics": "0.2.3",
+    "com.deucarian.common": "0.2.1"
   },
   "keywords": [
     "api",
@@ -35,6 +37,11 @@
       "displayName": "API Example Scene",
       "description": "Example scene showing config, authentication, GET, POST, and ApiResult handling.",
       "path": "Samples~/ExampleScene"
+    },
+    {
+      "displayName": "Definition Workflow",
+      "description": "Playable scene with typed C# calls, Inspector components, editable definitions and shared host ownership.",
+      "path": "Samples~/DefinitionWorkflow"
     }
   ]
 }

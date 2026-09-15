@@ -33,6 +33,7 @@ namespace Deucarian.API.Editor
         [SerializeField] private List<Binding> bindings = new List<Binding>();
 
         public IReadOnlyList<Binding> Bindings => bindings;
+        internal event Action BindingsChanged;
 
         public bool TryBind(
             ApiConnectionSettings settings,
@@ -55,6 +56,7 @@ namespace Deucarian.API.Editor
             bindings.Add(new Binding(serviceId.Value, guid));
             Save(true);
             error = null;
+            BindingsChanged?.Invoke();
             return true;
         }
 
@@ -146,6 +148,7 @@ namespace Deucarian.API.Editor
                         StringComparison.Ordinal)) > 0)
             {
                 Save(true);
+                BindingsChanged?.Invoke();
             }
         }
 

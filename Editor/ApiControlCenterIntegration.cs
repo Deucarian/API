@@ -17,7 +17,7 @@ namespace Deucarian.API.Editor
             DeucarianToolRegistry.Register(new DeucarianToolDescriptor(
                 DeucarianToolIds.ApiConnections,
                 "API Connections",
-                "Configure project-owned connections for package-owned services.",
+                "Configure service connections and per-environment base URLs.",
                 DeucarianControlCenterArea.Connections,
                 ApiConnectionsWindow.Open,
                 PackageId,
