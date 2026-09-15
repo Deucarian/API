@@ -29,7 +29,7 @@ jobs:
           echo "::error::Git-only stable distribution is active for now; tag and GitHub release creation are deferred to a dedicated release wave."
           exit 1
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Validate package layout
         run: node Tools/validate-package.js
@@ -40,7 +40,7 @@ jobs:
           git archive --format zip --output "artifacts/api-${GITHUB_REF_NAME}.zip" HEAD
 
       - name: Upload package zip
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: api-${{ github.ref_name }}
           path: artifacts/api-${{ github.ref_name }}.zip
