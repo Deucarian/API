@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Deucarian.API.Models;
+using Deucarian.API.Core;
 
 namespace Deucarian.API.Services
 {
@@ -26,6 +28,24 @@ namespace Deucarian.API.Services
             ApplyHeaders(request, customHeaders);
             ApiResult<byte[]> result = await ApiServices.Client.SendAsync<byte[]>(request, cancellationToken);
             return ApiCallResult<byte[]>.From(result);
+        }
+
+        public void Execute(string endpoint,
+                            Action<byte[]> onSuccess,
+                            Action<ApiError> onFailure,
+                            string accessToken = null,
+                            Dictionary<string, string> customHeaders = null,
+                            CancellationToken cancellationToken = default)
+        {
+            ApiCallbacks.Run<byte[]>(async () => await ExecuteAsync(endpoint,
+                                                                    accessToken,
+                                                                    customHeaders,
+                                                                    cancellationToken
+                                        ),
+                                        onSuccess,
+                                        onFailure,
+                                        cancellationToken
+            );
         }
 
         private static void ApplyHeaders(ApiRequest request, Dictionary<string, string> customHeaders)

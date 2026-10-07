@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
+using Deucarian.API.Core;
 using Deucarian.API.Calls;
 using Deucarian.API.Models;
 using Newtonsoft.Json.Linq;
@@ -33,7 +34,8 @@ namespace Deucarian.API.Services.Base
                 Dictionary<string, string> customHeaders = null,
                 [CallerMemberName] string callerMemberName = "",
                 [CallerFilePath] string callerFilePath = "",
-                [CallerLineNumber] int callerLineNumber = 0)
+                [CallerLineNumber] int callerLineNumber = 0,
+                CancellationToken cancellationToken = default)
         {
             try
             {
@@ -44,16 +46,8 @@ namespace Deucarian.API.Services.Base
                                                                                       data,
                                                                                       accessToken);
 
-                ApiCallResult<TResponse> result = await apiCall.Execute(customHeaders);
+                ApiCallResult<TResponse> result = await apiCall.Execute(customHeaders, cancellationToken);
 
-#if UNITY_EDITOR
-                if (APIDebugSettings.LogRawJson && result.IsSuccess && !string.IsNullOrEmpty(result.RawResponseBody))
-                {
-                    string indentedJson = GetIndentedJson(result.RawResponseBody);
-                    string jsonString = "[API Service] JSON Response from URL: " + endpoint + "\nJSON:\n" + indentedJson;
-                    ApiLog.Requests.Info(jsonString);
-                }
-#endif
 
                 if (!result.IsSuccess)
                 {
@@ -64,29 +58,48 @@ namespace Deucarian.API.Services.Base
                                                   ? null
                                                   : TryExtractJsonMessage(result.ErrorMessage) ?? result.ErrorMessage;
 
-                return new ApiCallResult<TResponse>
-                {
-                        IsSuccess = result.IsSuccess,
-                        Data = result.IsSuccess ? result.Data : default,
-                        ErrorMessage = extractedMessage,
-                        Exception = result.Exception,
-                        HttpMethod = this.HttpMethod,
-                        RawResponseBody = result.RawResponseBody
-                };
+                result.ErrorMessage = extractedMessage;
+                return result;
             }
             catch (Exception ex)
             {
-                ApiLog.Requests.Exception(
-                    ex,
-                    $"Exception occurred while making API call to {endpoint}: {ex.Message}\nStack Trace: {ex.StackTrace}");
+                ApiLog.Requests.Error("The legacy API request could not be completed. Inspect its ApiError for details.");
                 return new ApiCallResult<TResponse>
                 {
                         IsSuccess = false,
-                        ErrorMessage = ex.Message,
-                        Exception = ex,
+                        Error = new ApiError
+                        {
+                            Message = ex is OperationCanceledException
+                                ? "API request was canceled."
+                                : "The API request could not be completed.",
+                            Exception = ex,
+                            IsCancellation = ex is OperationCanceledException
+                        },
                         HttpMethod = this.HttpMethod
                 };
             }
+        }
+
+        public void Execute(string endpoint,
+                            bool requiresAuthentication,
+                            Action<TResponse> onSuccess,
+                            Action<ApiError> onFailure,
+                            object data = null,
+                            string accessToken = null,
+                            Dictionary<string, string> customHeaders = null,
+                            CancellationToken cancellationToken = default)
+        {
+            ApiCallbacks.Run<TResponse>(async () => await ExecuteAsync(endpoint,
+                                                                      requiresAuthentication,
+                                                                      data,
+                                                                      accessToken,
+                                                                      customHeaders,
+                                                                      cancellationToken: cancellationToken
+                                       ),
+                                       onSuccess,
+                                       onFailure,
+                                       cancellationToken
+            );
         }
 
         public string GetIndentedJson(string rawJson)
@@ -106,25 +119,7 @@ namespace Deucarian.API.Services.Base
 
         protected void HandleApiFailure(ApiCallResult<TResponse> result, string endpoint, string callerMemberName, string callerFilePath, int callerLineNumber)
         {
-            if (result == null)
-            {
-                ApiLog.Requests.Error($"Error making API call to {endpoint}: Result is null, likely due to a failed API call or a null response.");
-            }
-            else
-            {
-                var errorMessage = string.IsNullOrEmpty(result.ErrorMessage) ? "No error message provided" : result.ErrorMessage;
-                var exceptionDetails = result.Exception?.ToString() ?? "No exception details available";
-                var origin = $"{System.IO.Path.GetFileName(callerFilePath)}:{callerLineNumber} in {callerMemberName}()";
-                var originColored = $"<color=red>{origin}</color>";
-
-                string errorString = $"<color=red>Error</color> making API call to {endpoint} - HTTP Method: {result.HttpMethod} - Message: {errorMessage} - Exception: {exceptionDetails} - Origin: {originColored}";
-                ApiLog.Requests.Error(errorString);
-
-                if (result.Exception is HttpRequestException httpRequestException)
-                {
-                    ApiLog.Requests.Error($"HTTP Request Error: {httpRequestException.Message}");
-                }
-            }
+            ApiLog.Requests.Error("A legacy API request failed. Inspect its ApiError for details.");
         }
 
         /// <summary>
@@ -168,9 +163,9 @@ namespace Deucarian.API.Services.Base
                     }
                 }
             }
-            catch (Exception parseEx)
+            catch (Exception)
             {
-                ApiLog.Requests.Warning($"Failed to parse error message JSON: {parseEx.Message}");
+                ApiLog.Requests.Warning("A legacy API failure message could not be parsed.");
             }
             return null;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Deucarian.API.Models;
+using Deucarian.API.Core;
 using UnityEngine;
 
 namespace Deucarian.API.Services
@@ -29,6 +30,24 @@ namespace Deucarian.API.Services
             ApiResult<Texture2D> result =
                     await ApiServices.Client.SendAsync<Texture2D>(request, cancellationToken);
             return ApiCallResult<Texture2D>.From(result);
+        }
+
+        public void Execute(string endpoint,
+                            Action<Texture2D> onSuccess,
+                            Action<ApiError> onFailure,
+                            string accessToken = null,
+                            Dictionary<string, string> customHeaders = null,
+                            CancellationToken cancellationToken = default)
+        {
+            ApiCallbacks.Run<Texture2D>(async () => await ExecuteAsync(endpoint,
+                                                                    accessToken,
+                                                                    customHeaders,
+                                                                    cancellationToken
+                                        ),
+                                        onSuccess,
+                                        onFailure,
+                                        cancellationToken
+            );
         }
 
         private static void ApplyHeaders(ApiRequest request, Dictionary<string, string> customHeaders)
