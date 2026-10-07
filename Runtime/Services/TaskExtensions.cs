@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
+using System.Threading;
 using System.Threading.Tasks;
+using Deucarian.API.Core;
+using Deucarian.API.Models;
 
 namespace Deucarian.API.Services
 {
@@ -9,6 +12,40 @@ namespace Deucarian.API.Services
     /// </summary>
     public static class TaskExtensions
     {
+        /// <summary>Waits for a structured API task with separate typed success/failure callbacks.</summary>
+        public static IEnumerator AsIEnumeratorWithCallback<T>(this Task<ApiResult<T>> task,
+                                                                Action<T> onSuccess,
+                                                                Action<ApiError> onFailure,
+                                                                CancellationToken cancellationToken = default)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+            if (onSuccess == null)
+                throw new ArgumentNullException(nameof(onSuccess));
+            if (onFailure == null)
+                throw new ArgumentNullException(nameof(onFailure));
+
+            bool completed = false;
+            ApiCallbacks.Run(() => task,
+                             value =>
+                             {
+                                 completed = true;
+                                 onSuccess(value);
+                             },
+                             error =>
+                             {
+                                 completed = true;
+                                 onFailure(error);
+                             },
+                             cancellationToken
+            );
+
+            while (!completed)
+            {
+                yield return null;
+            }
+        }
+
         /// <summary>
         /// Converts a task into an IEnumerator and invokes a callback when it completes successfully.
         /// </summary>
