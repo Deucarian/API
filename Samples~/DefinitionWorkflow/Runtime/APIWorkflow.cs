@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Deucarian.API.Core;
+using Deucarian.API.Models;
 namespace Deucarian.API.Samples.DefinitionWorkflow
 {
     /// <summary>Small caller example. The configured scene hosts own services and resource lifetimes.</summary>
@@ -11,7 +12,22 @@ namespace Deucarian.API.Samples.DefinitionWorkflow
         [SerializeField] private SampleProfileTrigger trigger;
         private string status = "Ready. Choose an action below.";
         public string Status => status;
-        public async void Send() { var result = await host.SendAsync(endpoint, new SampleProfileRequest()); status = result.IsSuccess ? result.Data : result.ErrorMessage; }
+        public void Send()
+        {
+            host.Send(endpoint, new SampleProfileRequest(), OnSucceeded, OnFailed);
+        }
+
+        private void OnSucceeded(string value)
+        {
+            if (this != null)
+                status = value;
+        }
+
+        private void OnFailed(ApiError error)
+        {
+            if (this != null)
+                status = error.Message;
+        }
         public void SendComponent() { trigger.Send(); status = "Request sent through the typed component. The sample transport is local."; }
         private void OnGUI()
         {
