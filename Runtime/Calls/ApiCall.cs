@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Deucarian.API.Models;
 using Deucarian.API.Services;
+using Deucarian.API.Core;
 
 namespace Deucarian.API.Calls
 {
@@ -42,7 +44,8 @@ namespace Deucarian.API.Calls
             return new ApiCall<TCallResponse>(url, method, requiresAuthentication, data, accessToken);
         }
 
-        public Task<ApiCallResult<TResponse>> Execute(Dictionary<string, string> customHeaders = null)
+        public Task<ApiCallResult<TResponse>> Execute(Dictionary<string, string> customHeaders = null,
+                                                      CancellationToken cancellationToken = default)
         {
             return ApiServices.ExecuteLegacyAsync<TResponse>(_url,
                                                              _method,
@@ -51,7 +54,31 @@ namespace Deucarian.API.Calls
                                                              _accessToken,
                                                              customHeaders,
                                                              _bodyFormat,
-                                                             CancellationToken.None);
+                                                             cancellationToken);
+        }
+
+        public void Execute(Action<TResponse> onSuccess,
+                            Action<ApiError> onFailure,
+                            Dictionary<string, string> customHeaders = null,
+                            CancellationToken cancellationToken = default)
+        {
+            ApiCallbacks.Run<TResponse>(async () =>
+                                        {
+                                            return await ApiServices.ExecuteLegacyAsync<TResponse>(
+                                                _url,
+                                                _method,
+                                                _requiresAuthentication,
+                                                _data,
+                                                _accessToken,
+                                                customHeaders,
+                                                _bodyFormat,
+                                                cancellationToken
+                                            );
+                                        },
+                                        onSuccess,
+                                        onFailure,
+                                        cancellationToken
+            );
         }
     }
 }

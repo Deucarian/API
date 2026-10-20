@@ -50,6 +50,20 @@ namespace Deucarian.API.Core
             }
         }
 
+        /// <summary>Sends a typed endpoint and posts success or failure on Unity's main thread.</summary>
+        public void Send<TRequest, TResponse>(EndpointKey<TRequest, TResponse> endpoint,
+                                              TRequest request,
+                                              Action<TResponse> onSuccess,
+                                              Action<ApiError> onFailure,
+                                              CancellationToken cancellationToken = default)
+        {
+            ApiCallbacks.Run(() => SendAsync(endpoint, request, cancellationToken),
+                             onSuccess,
+                             onFailure,
+                             cancellationToken
+            );
+        }
+
         private void OnDestroy()
         { diagnosticRegistration?.Dispose(); diagnosticRegistration = null;
             destroyed = true;
