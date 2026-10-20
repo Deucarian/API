@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.2.0] - Upstream synchronization
+
+- Synchronize package version 2.2.0 from [upstream commit `9f3f35cac02225950aa70eb988caee91e5041170`](https://bitbucket.org/simultria/api/commits/9f3f35cac02225950aa70eb988caee91e5041170).
+
 ## 2.1.1 - Unreleased
 
 - Add opt-in incremental browser uploads for display-only image responses, preserving default CPU-readable textures. Cancel pending decoding and uploads with the request. Avoid redundant byte/text copies for typed responses on all platforms.

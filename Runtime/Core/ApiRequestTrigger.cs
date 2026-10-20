@@ -21,15 +21,56 @@ namespace Deucarian.API.Core
             if (host == null) throw new InvalidOperationException("Assign a configured ApiHost to this request component.");
             return host.SendAsync(endpoint, value, cancellationToken);
         }
-        public async void Send()
+        /// <summary>Sends this component's request using typed success and failure callbacks.</summary>
+        public void Send(TRequest value,
+                         Action<TResponse> onSuccess,
+                         Action<ApiError> onFailure,
+                         CancellationToken cancellationToken = default)
         {
-            ApiResult<TResponse> result;
-            try { result = await SendAsync(request, lifetime.Token); }
-            catch (OperationCanceledException) { return; }
-            if (this == null) return;
-            LastResult = result;
-            if (result.IsSuccess) succeeded.Invoke(result.Data); else failed.Invoke();
+            ApiCallbacks.Run(() => SendAsync(value, cancellationToken),
+                             onSuccess,
+                             onFailure,
+                             cancellationToken
+            );
         }
+
+        /// <summary>Sends the configured request and raises the serialized completion event.</summary>
+        public void Send()
+        {
+            ApiResult<TResponse> completedResult = null;
+            ApiCallbacks.Run(async () =>
+                             {
+                                 completedResult = await SendAsync(request, lifetime.Token);
+                                 return completedResult;
+                             },
+                             value =>
+                             {
+                                 if (this == null)
+                                     return;
+
+                                 LastResult = completedResult;
+                                 succeeded.Invoke(value);
+                             },
+                             error =>
+                             {
+                                 if (this == null)
+                                     return;
+
+                                 if (completedResult != null && completedResult.IsFailure
+                                     && completedResult.Error == null && !error.IsCancellation)
+                                 {
+                                     completedResult.Error = error;
+                                 }
+
+                                 LastResult = completedResult != null && ReferenceEquals(completedResult.Error, error)
+                                     ? completedResult
+                                     : ApiResult<TResponse>.Failure(error, HttpMethod.GET);
+                                 failed.Invoke();
+                             },
+                             lifetime.Token
+            );
+        }
+
         protected virtual void OnDestroy() { lifetime.Cancel(); lifetime.Dispose(); }
     }
 }

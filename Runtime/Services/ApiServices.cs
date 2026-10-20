@@ -22,7 +22,7 @@ namespace Deucarian.API.Services
     ///     await ApiServices.GetAsync&lt;ProjectDto[]&gt;("projects", cancellationToken);
     /// </code>
     /// </example>
-    public static class ApiServices
+    public static partial class ApiServices
     {
         private const string LegacyMigrationMessage =
                 "Use an injected IApiClient with string endpoints, ApiEndpoint, or ApiRequest. Configure auth through ApiClientConfig/IApiAuthProvider instead of passing requiresAuthentication/accessToken.";

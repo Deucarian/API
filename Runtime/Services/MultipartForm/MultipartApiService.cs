@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Deucarian.API.Calls;
 using Deucarian.API.Models;
@@ -23,7 +24,8 @@ namespace Deucarian.API.Services.MultipartForm
                                                                           Dictionary<string, string> customHeaders = null,
                                                                           [CallerMemberName] string callerMemberName = "",
                                                                           [CallerFilePath] string callerFilePath = "",
-                                                                          [CallerLineNumber] int callerLineNumber = 0)
+                                                                          [CallerLineNumber] int callerLineNumber = 0,
+                                                                          CancellationToken cancellationToken = default)
         {
             try
             {
@@ -35,30 +37,28 @@ namespace Deucarian.API.Services.MultipartForm
                                                                                                    accessToken
                                                                                                   );
 
-                ApiCallResult<TResponse> result = await apiCall.Execute(customHeaders);
+                ApiCallResult<TResponse> result = await apiCall.Execute(customHeaders, cancellationToken);
                 if (!result.IsSuccess)
                 {
                     base.HandleApiFailure(result, endpoint, callerMemberName, callerFilePath, callerLineNumber);
                 }
-                return new ApiCallResult<TResponse>
-                {
-                        IsSuccess = result.IsSuccess,
-                        Data = result.IsSuccess ? result.Data : default,
-                        ErrorMessage = result.ErrorMessage,
-                        Exception = result.Exception,
-                        HttpMethod = this.HttpMethod,
-                        RawResponseBody = result.RawResponseBody
-                };
+                return result;
             }
             catch(Exception ex)
             {
-                ApiLog.Requests.Exception(ex, "Multipart API call failed.");
+                ApiLog.Requests.Error("The legacy multipart request could not be completed. Inspect its ApiError for details.");
 
                 return new ApiCallResult<TResponse>
                 {
                         IsSuccess = false,
-                        ErrorMessage = ex.Message,
-                        Exception = ex,
+                        Error = new ApiError
+                        {
+                            Message = ex is OperationCanceledException
+                                ? "API request was canceled."
+                                : "The API request could not be completed.",
+                            Exception = ex,
+                            IsCancellation = ex is OperationCanceledException
+                        },
                         HttpMethod = this.HttpMethod
                 };
             }
