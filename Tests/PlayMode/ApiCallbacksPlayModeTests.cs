@@ -15,6 +15,48 @@ namespace Deucarian.API.Tests
         #region Test Methods
 
         [UnityTest]
+        public IEnumerator DelayedPlayerRequestCompletesOnTheUnityContextWithoutAWorker()
+        {
+            SynchronizationContext mainContext = SynchronizationContext.Current;
+            int mainThread = Thread.CurrentThread.ManagedThreadId;
+            TaskCompletionSource<ApiResult<int>> pending = new TaskCompletionSource<ApiResult<int>>();
+            SynchronizationContext callbackContext = null;
+            int callbackThread = 0;
+            int returnedValue = 0;
+            int completions = 0;
+            ApiError failure = null;
+            using (CancellationTokenSource cancellation = new CancellationTokenSource())
+            {
+                ApiCallbacks.Run(() => pending.Task,
+                                 value =>
+                                 {
+                                     callbackContext = SynchronizationContext.Current;
+                                     callbackThread = Thread.CurrentThread.ManagedThreadId;
+                                     returnedValue = value;
+                                     completions++;
+                                 },
+                                 error => failure = error,
+                                 cancellation.Token
+                );
+                yield return null;
+                pending.SetResult(Success(7));
+                Assert.That(completions, Is.Zero);
+
+                Stopwatch deadline = Stopwatch.StartNew();
+                while (completions == 0 && failure == null && deadline.Elapsed < TimeSpan.FromSeconds(10))
+                {
+                    yield return null;
+                }
+
+                Assert.That(failure, Is.Null);
+                Assert.That(returnedValue, Is.EqualTo(7));
+                Assert.That(callbackContext, Is.SameAs(mainContext));
+                Assert.That(callbackThread, Is.EqualTo(mainThread));
+                Assert.That(completions, Is.EqualTo(1));
+            }
+        }
+
+        [UnityTest]
         public IEnumerator WorkerRequestAndCallbackRunOnThePlayerMainThread()
         {
             int mainThread = Thread.CurrentThread.ManagedThreadId;
