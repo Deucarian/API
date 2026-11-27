@@ -49,7 +49,8 @@ namespace Deucarian.API.Core
                 );
             }
 
-            if (Thread.CurrentThread.ManagedThreadId == _mainThreadId)
+            if (Thread.CurrentThread.ManagedThreadId == _mainThreadId
+                && ReferenceEquals(SynchronizationContext.Current, context))
             {
                 _ = ExecuteAsync(operation, onSuccess, onFailure, cancellationToken, context);
             }
@@ -95,7 +96,8 @@ namespace Deucarian.API.Core
                 if (request == null)
                     throw new InvalidOperationException("The API operation did not return a task.");
 
-                result = await AwaitResultAsync(request, cancellationToken).ConfigureAwait(false);
+                // WebGL has no managed thread pool for these continuations.
+                result = await AwaitResultAsync(request, cancellationToken);
                 if (result == null)
                     throw new InvalidOperationException("The API operation did not return a result.");
             }
@@ -126,14 +128,14 @@ namespace Deucarian.API.Core
                                                                    CancellationToken cancellationToken)
         {
             if (!cancellationToken.CanBeCanceled)
-                return await request.ConfigureAwait(false);
+                return await request;
 
             TaskCompletionSource<bool> canceled = new TaskCompletionSource<bool>();
             using (cancellationToken.Register(() => canceled.TrySetResult(true)))
             {
-                Task completed = await Task.WhenAny(request, canceled.Task).ConfigureAwait(false);
+                Task completed = await Task.WhenAny(request, canceled.Task);
                 if (completed == request)
-                    return await request.ConfigureAwait(false);
+                    return await request;
 
                 // Observe a late failure without sending another completion or logging request data.
                 _ = ObserveAsync(request);
@@ -146,7 +148,7 @@ namespace Deucarian.API.Core
         {
             try
             {
-                await request.ConfigureAwait(false);
+                await request;
             }
             catch (Exception)
             {
